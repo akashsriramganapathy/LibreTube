@@ -11,6 +11,7 @@ import com.github.libretube.constants.IntentData.appUpdateChangelog
 import com.github.libretube.constants.IntentData.appUpdateURL
 import com.github.libretube.extensions.TAG
 import com.github.libretube.extensions.toastFromMainDispatcher
+import com.github.libretube.obj.update.UpdateInfo
 import com.github.libretube.ui.dialogs.UpdateAvailableDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

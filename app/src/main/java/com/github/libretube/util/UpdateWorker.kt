@@ -67,7 +67,7 @@ class UpdateWorker(
             .setSmallIcon(R.drawable.ic_download) // Ensure this icon exists or use a valid one
             .setContentTitle(applicationContext.getString(R.string.update_available))
             .setContentText("Version ${updateInfo.name} is available.")
-            .priority = NotificationCompat.PRIORITY_HIGH
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build()
