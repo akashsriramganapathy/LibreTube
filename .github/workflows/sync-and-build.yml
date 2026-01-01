@@ -5,7 +5,7 @@ on:
     - cron: '*/30 * * * *' # Check every 30 minutes
   workflow_dispatch: # Allow manual trigger
   push:
-    branches: [ master ]
+    branches: [ master, experimental ]
 
 permissions:
   contents: write
@@ -58,22 +58,40 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Set Release Variables
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            echo "RELEASE_TAG=nightly" >> $GITHUB_ENV
+            echo "APK_NAME=LibreTube-Nightly.apk" >> $GITHUB_ENV
+            echo "RELEASE_NAME=Nightly Build ${{ github.run_number }}" >> $GITHUB_ENV
+            echo "MAKE_LATEST=true" >> $GITHUB_ENV
+          else
+            echo "RELEASE_TAG=experimental" >> $GITHUB_ENV
+            echo "APK_NAME=LibreTube-Experimental.apk" >> $GITHUB_ENV
+            echo "RELEASE_NAME=Experimental Build ${{ github.run_number }}" >> $GITHUB_ENV
+            echo "MAKE_LATEST=false" >> $GITHUB_ENV
+          fi
+
       - name: Configure Git
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Add upstream remote
+        if: github.ref == 'refs/heads/master'
         run: git remote add upstream https://github.com/libre-tube/LibreTube.git
 
       - name: Fetch upstream
+        if: github.ref == 'refs/heads/master'
         run: git fetch upstream
 
       - name: Merge upstream/master
+        if: github.ref == 'refs/heads/master'
         run: |
           git merge upstream/master --no-edit || (git merge --abort && echo "Merge conflict occurred. Manual intervention required." && exit 1)
 
       - name: Push changes to fork
+        if: github.ref == 'refs/heads/master'
         run: git push origin $(git rev-parse --abbrev-ref HEAD)
 
       - name: Set up JDK 17
@@ -101,19 +119,19 @@ jobs:
 
       - name: Clean and Rename APK
         run: |
-          mv "$ANDROID_SIGNED_FILE" app/build/outputs/apk/release/LibreTube-Nightly.apk
-          find app/build/outputs/apk/release -type f -name "*.apk" ! -name "LibreTube-Nightly.apk" -delete
+          mv "$ANDROID_SIGNED_FILE" app/build/outputs/apk/release/${{ env.APK_NAME }}
+          find app/build/outputs/apk/release -type f -name "*.apk" ! -name "${{ env.APK_NAME }}" -delete
 
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
-          tag: nightly
-          name: Nightly Build ${{ github.run_number }}
-          artifacts: "app/build/outputs/apk/release/LibreTube-Nightly.apk"
+          tag: ${{ env.RELEASE_TAG }}
+          name: ${{ env.RELEASE_NAME }}
+          artifacts: "app/build/outputs/apk/release/${{ env.APK_NAME }}"
           allowUpdates: true
           removeArtifacts: true
           replacesArtifacts: true
-          makeLatest: "true"
+          makeLatest: ${{ env.MAKE_LATEST }}
           body: "Latest automated build (Run ${{ github.run_number }})"
           token: ${{ secrets.GITHUB_TOKEN }}
