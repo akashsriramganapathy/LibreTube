@@ -140,6 +140,8 @@ class UpdateReceiver : android.content.BroadcastReceiver() {
         val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
         val message = intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)
         
+        Log.d("UpdateReceiver", "Received Update Status: $status, Message: $message")
+
         when (status) {
             PackageInstaller.STATUS_PENDING_USER_ACTION -> {
                 val confirmIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -148,8 +150,13 @@ class UpdateReceiver : android.content.BroadcastReceiver() {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra(Intent.EXTRA_INTENT)
                 }
-                confirmIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(confirmIntent)
+                if (confirmIntent != null) {
+                    confirmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(confirmIntent)
+                } else {
+                    Log.e("UpdateReceiver", "Confirm Intent is null")
+                    android.widget.Toast.makeText(context, "Update failed: Confirmation missing", android.widget.Toast.LENGTH_LONG).show()
+                }
             }
             PackageInstaller.STATUS_SUCCESS -> {
                 Log.d("UpdateReceiver", "Installation successful")
