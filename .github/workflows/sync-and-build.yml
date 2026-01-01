@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '*/30 * * * *' # Check every 30 minutes
   workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [ master ]
 
 permissions:
   contents: write
@@ -48,7 +50,7 @@ jobs:
 
   sync-and-build:
     needs: check-upstream
-    if: needs.check-upstream.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch'
+    if: needs.check-upstream.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
