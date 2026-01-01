@@ -88,14 +88,17 @@ jobs:
         run: ./gradlew assembleRelease --stacktrace
 
       - name: Sign APK
-        uses: r0adkll/sign-android-release@v1
+        uses: ilharp/sign-android-release@v2
         id: sign_app
         with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.KEY_ALIAS }}
+          releaseDir: app/build/outputs/apk/release
+          signingKey: ${{ secrets.SIGNING_KEY }}
+          keyAlias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
+
+      - name: Delete Unsigned APKs
+        run: find app/build/outputs/apk/release -name "*-unsigned.apk" -delete
 
 
       - name: Create Release
@@ -103,7 +106,7 @@ jobs:
         with:
           tag: nightly
           name: Nightly Build ${{ github.run_number }}
-          artifacts: "${{ steps.sign_app.outputs.signedReleaseFile }}"
+          artifacts: "app/build/outputs/apk/release/*.apk"
           allowUpdates: true
           removeArtifacts: true
           replacesArtifacts: true
