@@ -39,7 +39,7 @@ class UpdateChecker(private val context: Context) {
 
             Log.d(TAG(), "Checking update: Local Run: $currentRunNumber, Remote Run: $remoteRunNumber")
 
-            if (remoteRunNumber > currentRunNumber) {
+            if (remoteRunNumber >= currentRunNumber) {
                 withContext(Dispatchers.Main) {
                     showUpdateAvailableDialog(response)
                 }

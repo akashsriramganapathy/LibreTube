@@ -68,9 +68,7 @@ class UpdateAvailableDialog : DialogFragment() {
                 requireContext().toastFromMainDispatcher(R.string.downloading)
             }
             if (updateManager.downloadApk(url, outputFile)) {
-                withContext(Dispatchers.Main) {
-                    updateManager.installApk(outputFile)
-                }
+                updateManager.installApk(outputFile)
             } else {
                 withContext(Dispatchers.Main) {
                     requireContext().toastFromMainDispatcher(R.string.downloadfailed)
