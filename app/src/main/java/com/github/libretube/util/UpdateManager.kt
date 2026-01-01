@@ -26,20 +26,61 @@ class UpdateManager(private val context: Context) {
      * Downloads an APK from the given URL to a temporary file.
      */
     suspend fun downloadApk(url: String, outputFile: File): Boolean = withContext(Dispatchers.IO) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channelId = "update_download_channel"
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+             val channel = android.app.NotificationChannel(
+                channelId,
+                "Update Download",
+                android.app.NotificationManager.IMPORTANCE_LOW
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+        
+        val builder = androidx.core.app.NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setContentTitle("Downloading Update")
+            .setOngoing(true)
+            .setProgress(100, 0, false)
+        
+        notificationManager.notify(1, builder.build())
+
         try {
             val request = Request.Builder().url(url).build()
             client.newCall(request).execute().use { response ->
                 if (!response.isSuccessful) return@withContext false
                 
-                response.body?.byteStream()?.use { inputStream ->
+                val body = response.body ?: return@withContext false
+                val contentLength = body.contentLength()
+                
+                body.byteStream().use { inputStream ->
                     outputFile.outputStream().use { outputStream ->
-                        inputStream.copyTo(outputStream)
+                        val buffer = ByteArray(8 * 1024)
+                        var bytesRead: Int
+                        var totalBytesRead: Long = 0
+                        
+                        while (inputStream.read(buffer).also { bytesRead = it } != -1) {
+                            outputStream.write(buffer, 0, bytesRead)
+                            totalBytesRead += bytesRead
+                            
+                            if (contentLength > 0) {
+                                val progress = (totalBytesRead * 100 / contentLength).toInt()
+                                builder.setProgress(100, progress, false)
+                                notificationManager.notify(1, builder.build())
+                            }
+                        }
                     }
                 }
             }
+            notificationManager.cancel(1)
             true
         } catch (e: Exception) {
             Log.e(TAG(), "Error downloading APK", e)
+            builder.setContentText("Download failed")
+                .setOngoing(false)
+                .setProgress(0, 0, false)
+            notificationManager.notify(1, builder.build())
             false
         }
     }

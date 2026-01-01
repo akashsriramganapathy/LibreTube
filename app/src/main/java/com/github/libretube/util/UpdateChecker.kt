@@ -19,18 +19,31 @@ import java.util.Locale
 
 class UpdateChecker(private val context: Context) {
     suspend fun checkUpdate(isManualCheck: Boolean = false) {
-        val currentAppVersion = BuildConfig.VERSION_NAME.filter { it.isDigit() }.toInt()
+        val currentVersionName = BuildConfig.VERSION_NAME
+        var currentRunNumber = 0
+
+        if (currentVersionName.startsWith("Nightly-Run")) {
+            currentRunNumber = currentVersionName.substringAfter("Nightly-Run").toIntOrNull() ?: 0
+        } else {
+             // Fallback for stable versions or if format changes, but since valid check is digits only which is bad
+             // We assume running locally (stable) we always want to check against nightly if available
+             // But user said current version is v0.29.01. "291".
+             // Let's assume stable versions are "older" than nightlies for this specific use case, or just checking numbers.
+             // If manual check, user expects update.
+        }
 
         try {
             val response = RetrofitInstance.externalApi.getLatestRelease()
-            // version would be in the format "0.21.1"
-            val update = response.name.filter { it.isDigit() }.toInt()
+            // Remote name format: "Nightly Build 9"
+            val remoteRunNumber = response.name.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
 
-            if (currentAppVersion != update) {
+            Log.d(TAG(), "Checking update: Local Run: $currentRunNumber, Remote Run: $remoteRunNumber")
+
+            if (remoteRunNumber > currentRunNumber) {
                 withContext(Dispatchers.Main) {
                     showUpdateAvailableDialog(response)
                 }
-                Log.i(TAG(), response.toString())
+                Log.i(TAG(), "Update found: $response")
             } else if (isManualCheck) {
                 context.toastFromMainDispatcher(R.string.app_uptodate)
             }
