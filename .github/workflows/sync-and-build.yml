@@ -96,14 +96,14 @@ jobs:
           alias: ${{ secrets.KEY_ALIAS }}
           keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
           keyPassword: ${{ secrets.KEY_PASSWORD }}
-        continue-on-error: true # Allow unsigned builds if secerts are missing
+
 
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
           tag: nightly
           name: Nightly Build ${{ github.run_number }}
-          artifacts: "app/build/outputs/apk/release/*.apk"
+          artifacts: "${{ steps.sign_app.outputs.signedReleaseFile }}"
           allowUpdates: true
           removeArtifacts: true
           replacesArtifacts: true
