@@ -153,9 +153,11 @@ class UpdateReceiver : android.content.BroadcastReceiver() {
             }
             PackageInstaller.STATUS_SUCCESS -> {
                 Log.d("UpdateReceiver", "Installation successful")
+                android.widget.Toast.makeText(context, "Installation successful", android.widget.Toast.LENGTH_SHORT).show()
             }
             else -> {
                 Log.e("UpdateReceiver", "Installation failed: $status, $message")
+                android.widget.Toast.makeText(context, "Installation failed: $message", android.widget.Toast.LENGTH_LONG).show()
             }
         }
     }
