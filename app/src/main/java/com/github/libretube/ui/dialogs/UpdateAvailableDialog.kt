@@ -68,33 +68,40 @@ class UpdateAvailableDialog : DialogFragment() {
                 requireContext().toastFromMainDispatcher(R.string.downloading)
             }
             if (updateManager.downloadApk(url, outputFile)) {
-                // Launch installation intent using FileProvider
-                val uri = androidx.core.content.FileProvider.getUriForFile(
-                    requireContext(),
-                    "${requireContext().packageName}.provider",
-                    outputFile
-                )
-                com.github.libretube.logger.FileLogger.d("UpdateDialog", "Installing update from: ${outputFile.absolutePath} (${outputFile.length()} bytes)")
-                com.github.libretube.logger.FileLogger.d("UpdateDialog", "Update URI: $uri")
-
-                val intent = Intent(Intent.ACTION_VIEW).apply {
-                    setDataAndType(uri, "application/vnd.android.package-archive")
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                
                 withContext(Dispatchers.Main) {
-                    try {
-                        requireContext().toastFromMainDispatcher("Installing update...")
+                    requireContext().toastFromMainDispatcher("Download complete. Preparing install...")
+                }
+
+                try {
+                    // Launch installation intent using FileProvider
+                    val uri = androidx.core.content.FileProvider.getUriForFile(
+                        requireContext(),
+                        "${requireContext().packageName}.provider",
+                        outputFile
+                    )
+                    
+                    com.github.libretube.logger.FileLogger.d("UpdateDialog", "Installing update from: ${outputFile.absolutePath} (${outputFile.length()} bytes)")
+                    com.github.libretube.logger.FileLogger.d("UpdateDialog", "Update URI: $uri")
+
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/vnd.android.package-archive")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+
+                    withContext(Dispatchers.Main) {
+                        requireContext().toastFromMainDispatcher("Launching installer...")
                         startActivity(intent)
-                    } catch (e: Exception) {
-                        com.github.libretube.logger.FileLogger.e("UpdateDialog", "Failed to start installation intent", e)
-                        requireContext().toastFromMainDispatcher("Install failed: ${e.message}")
+                    }
+                } catch (e: Exception) {
+                    com.github.libretube.logger.FileLogger.e("UpdateDialog", "Installation failed", e)
+                    withContext(Dispatchers.Main) {
+                         requireContext().toastFromMainDispatcher("Error: ${e.javaClass.simpleName}: ${e.message}")
                     }
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    requireContext().toastFromMainDispatcher(R.string.downloadfailed)
+                    requireContext().toastFromMainDispatcher("Download failed (Logic provided false)")
                 }
             }
         }
