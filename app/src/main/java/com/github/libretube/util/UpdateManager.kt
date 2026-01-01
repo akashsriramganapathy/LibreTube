@@ -20,12 +20,16 @@ import java.io.OutputStream
  */
 class UpdateManager(private val context: Context) {
 
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .connectTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .readTimeout(30, java.util.concurrent.TimeUnit.SECONDS)
+        .build()
 
     /**
      * Downloads an APK from the given URL to a temporary file.
      */
     suspend fun downloadApk(url: String, outputFile: File): Boolean = withContext(Dispatchers.IO) {
+        com.github.libretube.logger.FileLogger.d("UpdateManager", "Starting download: $url -> ${outputFile.path}")
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
         val channelId = "update_download_channel"
         
@@ -49,7 +53,10 @@ class UpdateManager(private val context: Context) {
         try {
             val request = Request.Builder().url(url).build()
             client.newCall(request).execute().use { response ->
-                if (!response.isSuccessful) return@withContext false
+                if (!response.isSuccessful) {
+                    com.github.libretube.logger.FileLogger.e("UpdateManager", "Download failed: HTTP ${response.code}")
+                    return@withContext false
+                }
                 
                 val body = response.body ?: return@withContext false
                 val contentLength = body.contentLength()
@@ -59,6 +66,7 @@ class UpdateManager(private val context: Context) {
                         val buffer = ByteArray(8 * 1024)
                         var bytesRead: Int
                         var totalBytesRead: Long = 0
+                        var lastProgress = 0
                         
                         while (inputStream.read(buffer).also { bytesRead = it } != -1) {
                             outputStream.write(buffer, 0, bytesRead)
@@ -66,16 +74,21 @@ class UpdateManager(private val context: Context) {
                             
                             if (contentLength > 0) {
                                 val progress = (totalBytesRead * 100 / contentLength).toInt()
-                                builder.setProgress(100, progress, false)
-                                notificationManager.notify(1, builder.build())
+                                if (progress > lastProgress) {
+                                    lastProgress = progress
+                                    builder.setProgress(100, progress, false)
+                                    notificationManager.notify(1, builder.build())
+                                }
                             }
                         }
                     }
                 }
             }
             notificationManager.cancel(1)
+            com.github.libretube.logger.FileLogger.d("UpdateManager", "Download finished successfully")
             true
         } catch (e: Exception) {
+            com.github.libretube.logger.FileLogger.e("UpdateManager", "Error downloading APK", e)
             Log.e(TAG(), "Error downloading APK", e)
             builder.setContentText("Download failed")
                 .setOngoing(false)

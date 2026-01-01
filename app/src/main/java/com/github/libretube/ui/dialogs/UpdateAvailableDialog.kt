@@ -60,23 +60,36 @@ class UpdateAvailableDialog : DialogFragment() {
         }
 
         val url = "https://github.com/akashsriramganapathy/LibreTube/releases/download/nightly/LibreTube-Nightly.apk"
-        val outputFile = File(requireContext().cacheDir, "update.apk")
+        // Use external files dir to match logger and make it accessible
+        val outputFile = File(requireContext().getExternalFilesDir(null), "LibreTube-Update.apk")
+        if (outputFile.exists()) {
+            outputFile.delete()
+        }
         val updateManager = UpdateManager(requireContext())
 
         lifecycleScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
                 requireContext().toastFromMainDispatcher(R.string.downloading)
             }
-            if (updateManager.downloadApk(url, outputFile)) {
+            val downloadResult = updateManager.downloadApk(url, outputFile)
+            com.github.libretube.logger.FileLogger.d("UpdateDialog", "Download result: $downloadResult")
+
+            if (downloadResult) {
                 withContext(Dispatchers.Main) {
-                    requireContext().toastFromMainDispatcher("Download complete. Preparing install...")
+                    val safeContext = context
+                    if (safeContext == null) {
+                         com.github.libretube.logger.FileLogger.e("UpdateDialog", "Context is null after download")
+                         return@withContext
+                    }
+                    safeContext.toastFromMainDispatcher("Download complete. Preparing install...")
                 }
 
                 try {
+                    val safeContext = context ?: return@launch
                     // Launch installation intent using FileProvider
                     val uri = androidx.core.content.FileProvider.getUriForFile(
-                        requireContext(),
-                        "${requireContext().packageName}.provider",
+                        safeContext,
+                        "${safeContext.packageName}.provider",
                         outputFile
                     )
                     
@@ -90,18 +103,23 @@ class UpdateAvailableDialog : DialogFragment() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        requireContext().toastFromMainDispatcher("Launching installer...")
-                        startActivity(intent)
+                        try {
+                           context?.toastFromMainDispatcher("Launching installer...")
+                           startActivity(intent)
+                        } catch (e: Exception) {
+                            com.github.libretube.logger.FileLogger.e("UpdateDialog", "StartActivity failed", e)
+                             context?.toastFromMainDispatcher("Launch failed: ${e.message}")
+                        }
                     }
                 } catch (e: Exception) {
-                    com.github.libretube.logger.FileLogger.e("UpdateDialog", "Installation failed", e)
+                    com.github.libretube.logger.FileLogger.e("UpdateDialog", "Installation setup failed", e)
                     withContext(Dispatchers.Main) {
-                         requireContext().toastFromMainDispatcher("Error: ${e.javaClass.simpleName}: ${e.message}")
+                         context?.toastFromMainDispatcher("Error: ${e.javaClass.simpleName}: ${e.message}")
                     }
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                    requireContext().toastFromMainDispatcher("Download failed (Logic provided false)")
+                   context?.toastFromMainDispatcher("Download failed (Logic provided false)")
                 }
             }
         }

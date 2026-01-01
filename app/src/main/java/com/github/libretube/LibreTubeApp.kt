@@ -60,6 +60,12 @@ class LibreTubeApp : Application() {
         ShortcutHelper.createShortcuts(this)
 
         NewPipeExtractorInstance.init()
+        
+        // Clean up old update APK if it exists
+        val updateFile = File(getExternalFilesDir(null), "LibreTube-Update.apk")
+        if (updateFile.exists()) {
+            updateFile.delete()
+        }
     }
 
     /**
