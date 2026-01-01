@@ -68,7 +68,18 @@ class UpdateAvailableDialog : DialogFragment() {
                 requireContext().toastFromMainDispatcher(R.string.downloading)
             }
             if (updateManager.downloadApk(url, outputFile)) {
-                updateManager.installApk(outputFile)
+                // Launch installation intent using FileProvider
+                val uri = androidx.core.content.FileProvider.getUriForFile(
+                    requireContext(),
+                    "${requireContext().packageName}.provider",
+                    outputFile
+                )
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/vnd.android.package-archive")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+                startActivity(intent)
             } else {
                 withContext(Dispatchers.Main) {
                     requireContext().toastFromMainDispatcher(R.string.downloadfailed)
