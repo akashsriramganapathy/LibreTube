@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.core.net.toUri
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.github.libretube.R
 import com.github.libretube.constants.IntentData.appUpdateChangelog
 import com.github.libretube.constants.IntentData.appUpdateURL

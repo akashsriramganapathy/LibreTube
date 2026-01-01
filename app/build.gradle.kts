@@ -139,6 +139,7 @@ dependencies {
     implementation(libs.lifecycle.runtime)
     implementation(libs.lifecycle.livedata)
     implementation(libs.lifecycle.service)
+    implementation(libs.lifecycle.process)
 
     /* Design */
     implementation(libs.material)
