@@ -11,6 +11,7 @@ import com.github.libretube.helpers.PreferenceHelper
 import com.github.libretube.helpers.ProxyHelper
 import com.github.libretube.helpers.ShortcutHelper
 import com.github.libretube.util.ExceptionHandler
+import java.io.File
 
 class LibreTubeApp : Application() {
     override fun onCreate() {
