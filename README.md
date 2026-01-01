@@ -13,13 +13,26 @@
 > **Note** <br>
 > We don't accept feature or bug requests on these platforms. Kindly submit requests only on GitHub.
 
-</div><div align="center" style="width:100%; display:flex; justify-content:space-between;">
-
-[<img src="assets/badges/fdrload.png" alt="Get it on F-Droid" width="30%">](https://f-droid.org/en/packages/com.github.libretube/)
-[<img src="assets/badges/izzyload.png" alt="Get it on IzzyOnDroid" width="30%">](https://apt.izzysoft.de/fdroid/index/apk/com.github.libretube)<br/>
-[<img src="assets/badges/ghload.png" alt="Get it on GitHub" width="30%">](https://github.com/libre-tube/LibreTube/releases/latest)
-
 </div>
+
+## 🤖 About this Fork
+**This is a personal fork of LibreTube, maintained and enhanced using Artificial Intelligence.**
+It creates a self-sustaining ecosystem where the app updates itself from this repository, and this repository keeps itself up-to-date with the official upstream source.
+
+### ✨ Added Features
+- **Self-Updater**: 
+  - Integrated `UpdateManager` that downloads and installs updates directly within the app.
+  - Uses Android's `PackageInstaller.Session` API for seamless updates.
+- **Smart Auto-Sync**: 
+  - Automated GitHub Action that polls the official LibreTube repository every 30 minutes.
+  - Automatically merges upstream changes and builds a new release only when the official build is successful.
+- **Background Updates**:
+  - `UpdateWorker` runs in the background (WorkManager) to check for updates even when the app is closed.
+  - Configurable update frequency (15m to 24h) with battery drain warnings.
+- **Custom Update Source**:
+  - The app is hardcoded to check *this* repository for updates, ensuring you stay on this custom fork while getting all official improvements.
+
+---
 
 <details>
   <summary>📜️ Credits</summary>
@@ -114,8 +127,6 @@ For instance, the most common commit types are "feat", "fix", "refactor", "ci" a
 > [!NOTE]
 > Any issue avoiding the issue template will be ignored and forced to be closed.
 
-> [!NOTE]
-> The usage of AI to generate issue texts or pull requests is not permitted at this repository and thus such issues / pull requests will be ignored.
 
 <h2 align="left">
 <sub>
