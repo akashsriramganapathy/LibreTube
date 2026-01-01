@@ -53,6 +53,12 @@ class UpdateChecker(private val context: Context) {
     }
 
     private fun showUpdateAvailableDialog(response: UpdateInfo) {
+        if (context is androidx.lifecycle.LifecycleOwner &&
+            context.lifecycle.currentState != androidx.lifecycle.Lifecycle.State.RESUMED
+        ) {
+            return
+        }
+
         val dialog = UpdateAvailableDialog()
         val args =
             Bundle().apply {
@@ -63,7 +69,9 @@ class UpdateChecker(private val context: Context) {
         dialog.arguments = args
         val fragmentManager = (context as? FragmentActivity)?.supportFragmentManager
         fragmentManager?.let {
-            dialog.show(it, UpdateAvailableDialog::class.java.simpleName)
+            if (!it.isStateSaved) {
+                dialog.show(it, UpdateAvailableDialog::class.java.simpleName)
+            }
         }
     }
 
