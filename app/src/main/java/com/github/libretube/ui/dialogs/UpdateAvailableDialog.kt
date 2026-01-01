@@ -59,37 +59,33 @@ class UpdateAvailableDialog : DialogFragment() {
             }
         }
 
+        val appContext = requireContext().applicationContext
         val url = "https://github.com/akashsriramganapathy/LibreTube/releases/download/nightly/LibreTube-Nightly.apk"
         // Use external files dir to match logger and make it accessible
-        val outputFile = File(requireContext().getExternalFilesDir(null), "LibreTube-Update.apk")
+        val outputFile = File(appContext.getExternalFilesDir(null), "LibreTube-Update.apk")
         if (outputFile.exists()) {
             outputFile.delete()
         }
-        val updateManager = UpdateManager(requireContext())
+        val updateManager = UpdateManager(appContext)
 
-        lifecycleScope.launch(Dispatchers.IO) {
+        // Use ProcessLifecycleOwner to ensure download continues even if Dialog/Activity is destroyed
+        androidx.lifecycle.ProcessLifecycleOwner.get().lifecycleScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.Main) {
-                requireContext().toastFromMainDispatcher(R.string.downloading)
+                appContext.toastFromMainDispatcher(R.string.downloading)
             }
             val downloadResult = updateManager.downloadApk(url, outputFile)
             com.github.libretube.logger.FileLogger.d("UpdateDialog", "Download result: $downloadResult")
 
             if (downloadResult) {
                 withContext(Dispatchers.Main) {
-                    val safeContext = context
-                    if (safeContext == null) {
-                         com.github.libretube.logger.FileLogger.e("UpdateDialog", "Context is null after download")
-                         return@withContext
-                    }
-                    safeContext.toastFromMainDispatcher("Download complete. Preparing install...")
+                    appContext.toastFromMainDispatcher("Download complete. Preparing install...")
                 }
 
                 try {
-                    val safeContext = context ?: return@launch
                     // Launch installation intent using FileProvider
                     val uri = androidx.core.content.FileProvider.getUriForFile(
-                        safeContext,
-                        "${safeContext.packageName}.provider",
+                        appContext,
+                        "${appContext.packageName}.provider",
                         outputFile
                     )
                     
@@ -104,22 +100,22 @@ class UpdateAvailableDialog : DialogFragment() {
 
                     withContext(Dispatchers.Main) {
                         try {
-                           context?.toastFromMainDispatcher("Launching installer...")
-                           startActivity(intent)
+                           appContext.toastFromMainDispatcher("Launching installer...")
+                           appContext.startActivity(intent)
                         } catch (e: Exception) {
                             com.github.libretube.logger.FileLogger.e("UpdateDialog", "StartActivity failed", e)
-                             context?.toastFromMainDispatcher("Launch failed: ${e.message}")
+                             appContext.toastFromMainDispatcher("Launch failed: ${e.message}")
                         }
                     }
                 } catch (e: Exception) {
                     com.github.libretube.logger.FileLogger.e("UpdateDialog", "Installation setup failed", e)
                     withContext(Dispatchers.Main) {
-                         context?.toastFromMainDispatcher("Error: ${e.javaClass.simpleName}: ${e.message}")
+                         appContext.toastFromMainDispatcher("Error: ${e.javaClass.simpleName}: ${e.message}")
                     }
                 }
             } else {
                 withContext(Dispatchers.Main) {
-                   context?.toastFromMainDispatcher("Download failed (Logic provided false)")
+                   appContext.toastFromMainDispatcher("Download failed (Logic provided false)")
                 }
             }
         }
