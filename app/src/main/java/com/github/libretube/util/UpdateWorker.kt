@@ -26,7 +26,7 @@ class UpdateWorker(
             val currentAppVersion = BuildConfig.VERSION_NAME.filter { it.isDigit() }.toInt()
             val updateVersion = response.name.filter { it.isDigit() }.toInt()
 
-            if (currentAppVersion != updateVersion) {
+            if (updateVersion > currentAppVersion) {
                 showUpdateNotification(response)
             }
             Result.success()

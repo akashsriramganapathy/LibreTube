@@ -39,11 +39,7 @@ class UpdateAvailableDialog : DialogFragment() {
             .setPositiveButton(R.string.update) { _, _ ->
                 installUpdate()
             }
-            .setNeutralButton(R.string.download) { _, _ ->
-                releaseUrl?.let {
-                    startActivity(Intent(Intent.ACTION_VIEW, it.toUri()))
-                }
-            }
+
             .setNegativeButton(R.string.tooltip_dismiss, null)
             .setCancelable(false)
             .show()
