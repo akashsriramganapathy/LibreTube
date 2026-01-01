@@ -129,6 +129,9 @@
     <string name="appearance">Appearance</string>
     <string name="downloads">Downloads</string>
     <string name="update_summary">Check for update</string>
+    <string name="update_check_frequency">Update check frequency</string>
+    <string name="battery_drain_warning_title">Battery Drain Warning</string>
+    <string name="battery_drain_warning_message">Checking for updates frequently (every 15 or 30 minutes) may drain your battery faster. Do you want to proceed?</string>
     <string name="app_uptodate">Running the latest version.</string>
     <string name="playback_speed">Playback speed</string>
     <string name="advanced">Advanced</string>
@@ -511,6 +514,7 @@
     <string name="add_to_group">Add to group</string>
     <string name="uptime">%.2f%% uptime</string>
     <string name="change">Change</string>
+    <string name="update">Update</string>
     <string name="gestures">Gestures</string>
     <string name="external_download_provider">External download provider</string>
     <string name="external_download_provider_summary">Enter the package name of the app you want to use for downloading videos. Leave blank to use LibreTube\'s inbuilt downloader.</string>
@@ -546,6 +550,8 @@
     <string name="chapters_videoHighlight">Video Highlight</string>
     <string name="player_channel_name">Player Service</string>
     <string name="player_channel_description">Shows a notification when playing</string>
+    <string name="update_channel_name">Update Service</string>
+    <string name="update_channel_description">Shows a notification when an update is available or installing.</string>
     <plurals name="channel_new_streams">
         <item quantity="one">%d new stream</item>
         <item quantity="other">%d new streams</item>

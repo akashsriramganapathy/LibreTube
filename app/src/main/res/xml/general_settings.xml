@@ -74,6 +74,16 @@
             app:title="@string/show_updates" />
 
         <ListPreference
+            android:defaultValue="360"
+            android:dependency="automatic_update_checks"
+            android:entries="@array/checkingFrequency"
+            android:entryValues="@array/checkingFrequencyValues"
+            android:icon="@drawable/ic_history"
+            app:key="checking_frequency"
+            app:title="@string/update_check_frequency"
+            app:useSimpleSummaryProvider="true" />
+
+        <ListPreference
             android:defaultValue="disabled"
             android:entries="@array/dataSaverModeOptions"
             android:entryValues="@array/dataSaverModeValues"

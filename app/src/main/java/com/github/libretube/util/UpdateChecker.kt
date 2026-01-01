@@ -27,7 +27,7 @@ class UpdateChecker(private val context: Context) {
 
             if (currentAppVersion != update) {
                 withContext(Dispatchers.Main) {
-                    showUpdateAvailableDialog(response.body, response.htmlUrl)
+                    showUpdateAvailableDialog(response)
                 }
                 Log.i(TAG(), response.toString())
             } else if (isManualCheck) {
@@ -38,15 +38,13 @@ class UpdateChecker(private val context: Context) {
         }
     }
 
-    private fun showUpdateAvailableDialog(
-        changelog: String,
-        url: String
-    ) {
+    private fun showUpdateAvailableDialog(response: UpdateInfo) {
         val dialog = UpdateAvailableDialog()
         val args =
             Bundle().apply {
-                putString(appUpdateChangelog, sanitizeChangelog(changelog))
-                putString(appUpdateURL, url)
+                putString(appUpdateChangelog, sanitizeChangelog(response.body))
+                putString(appUpdateURL, response.htmlUrl)
+                putString("update_name", response.name)
             }
         dialog.arguments = args
         val fragmentManager = (context as? FragmentActivity)?.supportFragmentManager
