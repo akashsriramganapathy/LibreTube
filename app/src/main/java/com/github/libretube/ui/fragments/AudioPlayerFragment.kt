@@ -190,6 +190,10 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             switchToVideoMode(currentId ?: return@setOnClickListener)
         }
 
+        binding.toggleVideo.setOnClickListener {
+            toggleInlineVideo()
+        }
+
         childFragmentManager.setFragmentResultListener(
             ChaptersBottomSheet.SEEK_TO_POSITION_REQUEST_KEY,
             viewLifecycleOwner
@@ -301,6 +305,36 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         binding.playerMotionLayout.transitionToEnd()
         activity.supportFragmentManager.commit {
             remove(this@AudioPlayerFragment)
+        }
+    }
+    
+    private var isInlineVideoEnabled = false
+    
+    private fun toggleInlineVideo() {
+        val player = playerController ?: return
+        
+        isInlineVideoEnabled = !isInlineVideoEnabled
+        
+        if (isInlineVideoEnabled) {
+            binding.thumbnail.isGone = true
+            binding.videoPlayerView.isVisible = true
+            binding.videoPlayerView.player = player
+            binding.toggleVideo.setIconResource(R.drawable.ic_image)
+            
+            player.sendCustomCommand(
+                AbstractPlayerService.runPlayerActionCommand,
+                bundleOf(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name to false)
+            )
+        } else {
+            binding.videoPlayerView.player = null
+            binding.videoPlayerView.isGone = true
+            binding.thumbnail.isVisible = true
+            binding.toggleVideo.setIconResource(R.drawable.ic_movie)
+            
+            player.sendCustomCommand(
+                AbstractPlayerService.runPlayerActionCommand,
+                bundleOf(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name to true)
+            )
         }
     }
 

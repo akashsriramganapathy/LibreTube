@@ -71,6 +71,18 @@
                 app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Small"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
+            <androidx.media3.ui.PlayerView
+                android:id="@+id/video_player_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="10dp"
+                android:visibility="gone"
+                app:surface_type="surface_view"
+                app:use_controller="false"
+                app:shutter_background_color="@android:color/transparent" />
+
             <LinearLayout
                 android:id="@+id/volumeControls"
                 android:layout_width="42dp"
@@ -245,6 +257,7 @@
             android:paddingVertical="16dp">
 
             <com.google.android.material.button.MaterialButtonGroup
+                android:id="@+id/utilsButtonGroup"
                 style="@style/Widget.Material3.MaterialButtonGroup.Connected"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
@@ -278,6 +291,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/ic_sleep" />
+
+                <com.google.android.material.button.MaterialButton
+                    style="?materialIconButtonOutlinedStyle"
+                    android:id="@+id/toggle_video"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/ic_movie" />
 
                 <com.google.android.material.button.MaterialButton
                     style="?materialIconButtonOutlinedStyle"
