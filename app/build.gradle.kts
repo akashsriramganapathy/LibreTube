@@ -179,4 +179,6 @@ dependencies {
 
     /* Testing */
     testImplementation(libs.junit)
+
+    implementation(project(":logger"))
 }

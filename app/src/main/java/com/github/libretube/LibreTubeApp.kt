@@ -20,6 +20,7 @@ class LibreTubeApp : Application() {
         /**
          * Initialize the needed notification channels for DownloadService and BackgroundMode
          */
+        com.github.libretube.logger.FileLogger.init(applicationContext)
         initializeNotificationChannels()
 
         /**
