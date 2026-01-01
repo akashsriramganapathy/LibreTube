@@ -25,7 +25,7 @@ jobs:
         id: check
         run: |
           # Get the latest successful workflow run from upstream
-          LATEST_UPSTREAM_SHA=$(gh run list --repo libre-tube/LibreTube --branch master --workflow "Android CI" --status success --limit 1 --json headSha --jq '.[0].headSha')
+          LATEST_UPSTREAM_SHA=$(gh run list --repo libre-tube/LibreTube --branch master --workflow "CI" --status success --limit 1 --json headSha --jq '.[0].headSha')
           
           if [ -z "$LATEST_UPSTREAM_SHA" ]; then
             echo "::notice::No successful upstream runs found."
