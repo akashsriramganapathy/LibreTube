@@ -171,7 +171,7 @@ class MainActivity : BaseActivity() {
         }
 
         // Check update automatically
-        if (PreferenceHelper.getBoolean(PreferenceKeys.AUTOMATIC_UPDATE_CHECKS, false)) {
+        if (PreferenceHelper.getBoolean(PreferenceKeys.AUTOMATIC_UPDATE_CHECKS, true)) {
             lifecycleScope.launch(Dispatchers.IO) {
                 UpdateChecker(this@MainActivity).checkUpdate(false)
             }
