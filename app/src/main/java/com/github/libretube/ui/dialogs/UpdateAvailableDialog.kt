@@ -49,7 +49,7 @@ class UpdateAvailableDialog : DialogFragment() {
     }
 
     private fun installUpdate() {
-        val url = "https://github.com/libre-tube/LibreTube/releases/download/$updateName/LibreTube_$updateName.apk"
+        val url = "https://github.com/akashsriramganapathy/LibreTube/releases/download/nightly/LibreTube-Nightly.apk"
         val outputFile = File(requireContext().cacheDir, "update.apk")
         val updateManager = UpdateManager(requireContext())
 
