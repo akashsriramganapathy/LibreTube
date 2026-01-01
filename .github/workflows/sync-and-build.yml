@@ -99,7 +99,7 @@ jobs:
 
       - name: Clean and Rename APK
         run: |
-          mv "${{ steps.sign_app.outputs.signedReleaseFile }}" app/build/outputs/apk/release/LibreTube-Nightly.apk
+          mv "$ANDROID_SIGNED_FILE" app/build/outputs/apk/release/LibreTube-Nightly.apk
           find app/build/outputs/apk/release -type f -name "*.apk" ! -name "LibreTube-Nightly.apk" -delete
 
 
