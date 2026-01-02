@@ -4,16 +4,7 @@
 [![GPL-v3](assets/widgets/license-widget.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 </div><div align="center" style="width:100%; display:flex; justify-content:space-between;">
 
-[![Matrix](assets/widgets/mat-widget.svg)](https://matrix.to/#/#LibreTube:matrix.org)
-[![Mastodon](assets/widgets/mast-widget.svg)](https://fosstodon.org/@libretube)
-[![Lemmy](assets/widgets/lemmy-widget.svg)](https://feddit.rocks/c/libretube)
 
-</div>
-
-> **Note** <br>
-> We don't accept feature or bug requests on these platforms. Kindly submit requests only on GitHub.
-
-</div>
 
 ## 🤖 About this Fork
 **This is a personal fork of LibreTube, maintained and enhanced using Artificial Intelligence.**
