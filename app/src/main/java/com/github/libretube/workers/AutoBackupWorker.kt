@@ -2,7 +2,6 @@ package com.github.libretube.workers
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
@@ -24,6 +23,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
+import com.github.libretube.logger.FileLogger
+
 class AutoBackupWorker(
     appContext: Context,
     workerParams: WorkerParameters
@@ -36,20 +37,25 @@ class AutoBackupWorker(
 
         val backupPath = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
         if (backupPath.isEmpty()) {
+            FileLogger.e(TAG, "Auto Backup skipped: Path not set")
             return@withContext Result.failure()
         }
 
         val uri = Uri.parse(backupPath)
         val tree = DocumentFile.fromTreeUri(applicationContext, uri)
         if (tree == null || !tree.canWrite()) {
-            Log.e(TAG, "Cannot write to backup location: $backupPath")
+            FileLogger.e(TAG, "Cannot write to backup location: $backupPath")
             return@withContext Result.failure()
         }
 
+        FileLogger.i(TAG, "Starting Auto Backup...")
         val backupFile = BackupFile()
         
         // Populate BackupFile with all data (Auto Backup implies full backup)
-        backupFile.watchHistory = Database.watchHistoryDao().getAll()
+        val watchHistory = Database.watchHistoryDao().getAll()
+        FileLogger.d(TAG, "Fetched ${watchHistory.size} watch history items")
+        backupFile.watchHistory = watchHistory
+
         backupFile.watchPositions = Database.watchPositionDao().getAll()
         backupFile.searchHistory = Database.searchHistoryDao().getAll()
         backupFile.subscriptions = Database.localSubscriptionDao().getAll()
@@ -74,10 +80,11 @@ class AutoBackupWorker(
         try {
             // Serialize to string first to match Manual Backup behavior
             val jsonString = kotlinx.serialization.json.Json.encodeToString(backupFile)
+            FileLogger.d(TAG, "Serialized backup size: ${jsonString.length} chars")
 
             val file = tree.createFile("application/json", fileName)
             if (file == null) {
-                Log.e(TAG, "Failed to create backup file")
+                FileLogger.e(TAG, "Failed to create backup file")
                 return@withContext Result.failure()
             }
 
@@ -85,11 +92,13 @@ class AutoBackupWorker(
                 outputStream.write(jsonString.toByteArray())
             }
             
+            FileLogger.i(TAG, "Backup written successfully to $fileName")
+
             // Prune old backups
             pruneBackups(tree)
             
         } catch (e: Exception) {
-            Log.e(TAG, "Error during auto backup", e)
+            FileLogger.e(TAG, "Error during auto backup", e)
             return@withContext Result.failure()
         }
 
@@ -106,6 +115,7 @@ class AutoBackupWorker(
 
         if (files.size > maxFiles) {
             val toDelete = files.drop(maxFiles)
+            FileLogger.d(TAG, "Pruning ${toDelete.size} old backups")
             toDelete.forEach { it.delete() }
         }
     }
@@ -134,6 +144,8 @@ class AutoBackupWorker(
             }
 
             val initialDelay = target.timeInMillis - now.timeInMillis
+            
+            FileLogger.d(TAG, "Scheduling Auto Backup for $target (in $initialDelay ms)")
 
             val cleanupRequest = PeriodicWorkRequestBuilder<AutoBackupWorker>(
                 24, TimeUnit.HOURS
@@ -148,6 +160,7 @@ class AutoBackupWorker(
         }
 
         fun runNow(context: Context) {
+            FileLogger.i(TAG, "Manual AutoBackup Triggered")
             val request = androidx.work.OneTimeWorkRequestBuilder<AutoBackupWorker>()
                 .build()
             WorkManager.getInstance(context).enqueue(request)
