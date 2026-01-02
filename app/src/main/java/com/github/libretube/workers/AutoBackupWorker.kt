@@ -49,10 +49,7 @@ class AutoBackupWorker(
         val backupFile = BackupFile()
         
         // Populate BackupFile with all data (Auto Backup implies full backup)
-        val watchHistory = Database.watchHistoryDao().getAll()
-        Log.d(TAG, "Fetched ${watchHistory.size} watch history items")
-        backupFile.watchHistory = watchHistory
-
+        backupFile.watchHistory = Database.watchHistoryDao().getAll()
         backupFile.watchPositions = Database.watchPositionDao().getAll()
         backupFile.searchHistory = Database.searchHistoryDao().getAll()
         backupFile.subscriptions = Database.localSubscriptionDao().getAll()
@@ -75,9 +72,8 @@ class AutoBackupWorker(
         val fileName = "libretube-auto-backup-$timestamp.json"
 
         try {
-            // Serialize to string first to match Manual Backup behavior and debug size
+            // Serialize to string first to match Manual Backup behavior
             val jsonString = kotlinx.serialization.json.Json.encodeToString(backupFile)
-            Log.d(TAG, "Serialized backup size: ${jsonString.length} chars")
 
             val file = tree.createFile("application/json", fileName)
             if (file == null) {
