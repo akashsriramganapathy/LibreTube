@@ -37,8 +37,10 @@ import com.github.libretube.R
 import com.github.libretube.api.JsonHelper
 import com.github.libretube.api.obj.ChapterSegment
 import com.github.libretube.constants.IntentData
+import android.util.Log
 import com.github.libretube.databinding.FragmentAudioPlayerBinding
 import com.github.libretube.enums.PlayerCommand
+import com.github.libretube.extensions.TAG
 import com.github.libretube.extensions.navigateVideo
 import com.github.libretube.extensions.normalize
 import com.github.libretube.extensions.seekBy
