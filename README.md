@@ -17,10 +17,7 @@
 This fork introduces powerful capabilities not found in the official release:
 
 ### 🎧 Advanced Audio Experience
-- **Inline Video Switch**: Instantly toggle between audio-only and video modes directly within the player interface.
-- **Persistent Mini-Player**: Video playback continues seamlessly in the mini-player without reverting to a static thumbnail, even when navigating the app.
-- **Enhanced PiP**: Complete Picture-in-Picture support driven directly from the audio player.
-
+- **Inline Video Switch**: Instantly toggle between audio-only and video modes directly within the Audio player interface by replace the thumbnail with the video player.
 ### 📥 Power-User Downloads
 - **Massive Playlist Support**: Specifically engineered to handle downloading huge local playlists. The optimized engine ensures stability and performance even when processing libraries with hundreds of tracks.
 
