@@ -331,7 +331,7 @@
             </intent-filter>
 
             <!-- YouTube -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -362,7 +362,7 @@
             </intent-filter>
 
             <!-- Support being detected as media player -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
@@ -374,24 +374,6 @@
                 <data android:scheme="https" />
                 <data android:host="youtu.be" />
                 <data android:pathPrefix="/" />
-            </intent-filter>
-
-            <!-- Piped filter -->
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <action android:name="android.media.action.MEDIA_PLAY_FROM_SEARCH" />
-                <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:scheme="http" />
-                <data android:scheme="https" />
-                <data android:pathPrefix="/" />
-
-                <data android:host="piped.drgns.space" />
-                <data android:host="piped.syncpundit.io" />
-                <data android:host="piped.video" />
             </intent-filter>
         </activity>
 
