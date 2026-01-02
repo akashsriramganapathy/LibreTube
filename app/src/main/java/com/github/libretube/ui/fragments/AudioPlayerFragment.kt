@@ -366,6 +366,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         val player = playerController ?: return
         
         isInlineVideoEnabled = !isInlineVideoEnabled
+        binding.togglePip.isVisible = !isInlineVideoEnabled
         
         if (isInlineVideoEnabled) {
             binding.thumbnail.isGone = true
