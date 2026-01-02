@@ -104,6 +104,9 @@ class UpdateManager(private val context: Context) {
     fun installApk(apkFile: File) {
         val packageInstaller = context.packageManager.packageInstaller
         val sessionParams = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            sessionParams.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
+        }
 
         var sessionId = -1
         try {
