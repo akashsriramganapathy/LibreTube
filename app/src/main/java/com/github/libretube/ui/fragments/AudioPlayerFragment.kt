@@ -24,6 +24,14 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
+import androidx.core.app.PictureInPictureModeChangedInfo
+import androidx.core.app.PictureInPictureCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.github.libretube.R
 import com.github.libretube.api.JsonHelper
 import com.github.libretube.api.obj.ChapterSegment
@@ -109,6 +117,26 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         }
     }
 
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode)
+        
+        binding.audioPlayerMain.isVisible = !isInPictureInPictureMode
+        binding.audioPlayerContainer.isVisible = !isInPictureInPictureMode
+        
+        // Handle mini player controls visibility
+        if (!isInPictureInPictureMode) {
+            // Restore mini player visibility if valid
+            binding.miniPlayerControls.isVisible = viewModel.isMiniPlayerVisible.value == true
+        } else {
+             binding.miniPlayerControls.isVisible = false
+        }
+        
+        // If in PiP, ensure video is visible if enabled
+        if (isInPictureInPictureMode && isInlineVideoEnabled) {
+             binding.videoPlayerView.isVisible = true
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         _binding = FragmentAudioPlayerBinding.bind(view)
@@ -188,6 +216,14 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         binding.openVideo.setOnClickListener {
             val currentId = PlayingQueue.getCurrent()?.url?.toID()
             switchToVideoMode(currentId ?: return@setOnClickListener)
+        }
+
+        binding.togglePip.setOnClickListener {
+            if (PictureInPictureCompat.isPictureInPictureAvailable(requireContext())) {
+                 // Basic params, can be customized
+                 val params = androidx.core.app.PictureInPictureModeChangedInfo(true)
+                 PictureInPictureCompat.enterPictureInPictureMode(requireActivity(), null) 
+            }
         }
 
         binding.toggleVideo.setOnClickListener {
