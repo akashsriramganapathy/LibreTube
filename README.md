@@ -3,8 +3,15 @@
 
 [![GPL-v3](assets/widgets/license-widget.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 </div><div align="center" style="width:100%; display:flex; justify-content:space-between;">
+
+[![Matrix](assets/widgets/mat-widget.svg)](https://matrix.to/#/#LibreTube:matrix.org)
+[![Mastodon](assets/widgets/mast-widget.svg)](https://fosstodon.org/@libretube)
+[![Lemmy](assets/widgets/lemmy-widget.svg)](https://feddit.rocks/c/libretube)
+
+
 </div>
 
+<br>
 
 ## 🤖 About this Fork
 **This is a personal fork of LibreTube, maintained and enhanced using Artificial Intelligence.**
@@ -28,32 +35,102 @@ It creates a self-sustaining ecosystem where the app updates itself from this re
   - **Picture-in-Picture Support**: Enable PiP directly from the audio player.
   - **Enhanced Title Display**: Support for 2-line titles without scrolling marquee.
 
+
+---
+
+<details>
+  <summary>📜️ Credits</summary>
+
+<sub>Original Project by [Bnyro](https://github.com/Bnyro) - A huge thanks for creating and maintaining LibreTube!</sub> <br>
+<sub>Readme Design and Banners by [XelXen](https://github.com/XelXen)</sub> <br>
+<sub>Readme Screenshots by [ARBoyGo](https://github.com/ARBoyGo)</sub> <br>
+<sub>Readme Emoji is from [openmoji](https://openmoji.org)</sub>
+
+  <summary>Icons</summary>
+
+<sub>[Default App Icon](https://github.com/libre-tube/LibreTube/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png) by [XelXen](https://github.com/XelXen)</sub> <br>
+<sub>[Boosted Bird](https://github.com/libre-tube/LibreTube/blob/master/app/src/main/res/mipmap-xxxhdpi/ic_bird_round.png) by [Margot Albert-Heuzey](https://margotdesign.ovh)</sub>
+
+</details>
+
 <h2 align="left">
 <sub>
-<img  src="assets/readme/ltvnp.svg"
+<img  src="assets/readme/about.svg"
       height="30"
       width="30">
 </sub>
-Differences to NewPipe
+About
 </h2>
 
-With LibreTube, you have the choice to either send all requests directly to YouTube or proxy them via Piped for better privacy. Piped acts as a middleman server between you and YouTube in this case, which prevents YouTube from accessing personal information such as your IP address. 
-Additionally, using Piped allows you to sync your subscriptions between LibreTube and Piped, which can be used on desktop too.
+YouTube has an extremely invasive [privacy policy](https://support.google.com/youtube/answer/10364219) which relies on using user data in unethical ways. They store a lot of your personal data - ranging from ideas, music taste, content, political opinions, and much more than you think.
 
-While LibreTube only supports YouTube, NewPipe also allows the use of other platforms like SoundCloud, PeerTube, Bandcamp and media.ccc.de.<br>
-Both are great clients for watching YouTube videos. It depends on the individual's use case which one fits their needs better.
+This project is aimed at improving the users' privacy by being independent from Google and bypassing their data collection.
+
+Therefore, the app is using the [Piped API](https://github.com/TeamPiped/Piped), which uses proxies to circumvent Google's data collection and includes some other additional features.
+
+If you have questions or need help, please make sure to read the [FAQ](https://libre-tube.github.io/#faq) before asking for help at the community channels. The [Matrix room](https://matrix.to/#/#LibreTube:matrix.org) is considered as the main communication channel, all other forums or social media accounts are maintained by volunteers from the community but not the developer(s).
 
 <h2 align="left">
 <sub>
-<img  src="assets/readme/privacy.svg"
+<img  src="assets/readme/phone.svg"
       height="30"
       width="30">
 </sub>
-Privacy Policy and Disclaimer
+Screenshots
 </h2>
 
+<div style="width:100%; display:flex; justify-content:space-between;">
 
-LibreTube aims to protect the privacy of its users. [Our Privacy Policy](/PRIVACY_POLICY.md) gives detailed information on which data the app stores in order to work, how it is being used, and how the project protects your personal information. It is recommended to read the privacy policy of LibreTube as well as the privacy policy of the instance you have chosen inside the app.
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_1.jpg" width=19% alt="Home">](fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_1.jpg)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_2.jpg" width=19% alt="Home">](fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_2.jpg)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_3.jpg" width=19% alt="Subscriptions">](fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_3.jpg)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_4.jpg" width=19% alt="Library">](fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_4.jpg)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_9.jpg" width=19% alt="Channel Overview">](fastlane/metadata/android/en-US/images/phoneScreenshots/Screenshot_9.jpg)
+
+* More screenshots can be found [here](https://github.com/libre-tube/LibreTube/blob/master/SCREEN_SHOT.md)
+
+</div>
+
+<h2 align="left">
+<sub>
+<img  src="assets/readme/feature.svg"
+      height="30"
+      width="30">
+</sub>
+Features
+</h2>
+
+- [x] No Ads or Tracking
+- [x] Subscriptions
+- [x] Subscription Groups
+- [x] User Playlists
+- [x] Playlist Bookmarks
+- [x] Watch/Search History
+- [x] SponsorBlock
+- [x] ReturnYouTubeDislike
+- [x] DeArrow
+- [x] Downloads
+- [x] Background playback
+- [x] User Accounts via Piped (optional)
+
+<h2 align="left">
+<sub>
+<img  src="assets/readme/community.svg"
+      height="30"
+      width="30">
+</sub>
+Contributing
+</h2>
+
+Whether you have ideas, translations, design changes, code cleaning or really heavy code changes, help is always welcome. The more is done, the better it gets! Please respect our [Code of Conduct](https://github.com/libre-tube/LibreTube/blob/master/CODE_OF_CONDUCT.md) in order to keep all interactions and discussions healthy.
+
+You can open and build the project like any other normal Android project by using Android Studio.
+
+Please make sure the title of your pull request and the commit messages follow the [conventional commit types](https://github.com/commitizen/conventional-commit-types/blob/master/index.json) (e.g. `feat: support for xy`).
+For instance, the most common commit types are "feat", "fix", "refactor", "ci" and "chore".
+
+> [!NOTE]
+> Any issue avoiding the issue template will be ignored and forced to be closed.
 
 ## License
 [![GNU GPLv3 Image](https://www.gnu.org/graphics/gplv3-127x51.png)](http://www.gnu.org/licenses/gpl-3.0.en.html)
