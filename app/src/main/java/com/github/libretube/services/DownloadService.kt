@@ -106,20 +106,24 @@ class DownloadService : LifecycleService() {
             .build()
     }
 
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+
     override fun onCreate() {
         super.onCreate()
         IS_DOWNLOAD_RUNNING = true
         notifyForeground()
         sendBroadcast(Intent(ACTION_SERVICE_STARTED))
+        registerNetworkChangedCallback()
     }
 
     /**
      * Listen for network changes and pause the download if the network connection becomes metered
      */
     fun registerNetworkChangedCallback() {
+        if (networkCallback != null) return
+
         val connectivityManager = getSystemService<ConnectivityManager>()
-        connectivityManager?.registerDefaultNetworkCallback(object :
-            ConnectivityManager.NetworkCallback() {
+        networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 super.onAvailable(network)
 
@@ -130,7 +134,8 @@ class DownloadService : LifecycleService() {
                     }
                 }
             }
-        })
+        }
+        connectivityManager?.registerDefaultNetworkCallback(networkCallback!!)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -141,8 +146,6 @@ class DownloadService : LifecycleService() {
             ACTION_DOWNLOAD_PAUSE -> pause(downloadId!!)
             ACTION_DOWNLOAD_STOP -> stop(downloadId!!)
         }
-
-        registerNetworkChangedCallback()
 
         val downloadData = intent?.parcelableExtra<DownloadData>(IntentData.downloadData)
             ?: return START_NOT_STICKY
@@ -636,6 +639,12 @@ class DownloadService : LifecycleService() {
         downloadQueue.clear()
         IS_DOWNLOAD_RUNNING = false
         sendBroadcast(Intent(ACTION_SERVICE_STOPPED))
+        
+        networkCallback?.let {
+            getSystemService<ConnectivityManager>()?.unregisterNetworkCallback(it)
+            networkCallback = null
+        }
+        
         super.onDestroy()
     }
 
