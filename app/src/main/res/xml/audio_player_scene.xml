@@ -29,14 +29,7 @@
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toTopOf="parent" />
-        <Constraint
-            android:id="@+id/video_player_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            motion:layout_constraintBottom_toBottomOf="parent"
-            motion:layout_constraintEnd_toEndOf="parent"
-            motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toTopOf="parent" />
+
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -69,13 +62,6 @@
             motion:layout_constraintEnd_toEndOf="@id/audio_player_container"
             motion:layout_constraintStart_toStartOf="@id/audio_player_container"
             motion:layout_constraintTop_toTopOf="@+id/audio_player_container" />
-        <Constraint
-            android:id="@+id/video_player_view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            motion:layout_constraintTop_toTopOf="@id/miniPlayerControls"
-            motion:layout_constraintBottom_toBottomOf="@id/miniPlayerControls"
-            motion:layout_constraintStart_toStartOf="@id/miniPlayerControls"
-            motion:layout_constraintEnd_toEndOf="@id/miniPlayerThumbnail" />
+
     </ConstraintSet>
 </MotionScene>
