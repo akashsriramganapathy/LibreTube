@@ -1,16 +1,3 @@
-<div align="center">
-  <img src="assets/banners/gh-banner.png" width="auto" height="auto" alt="LibreTube">
-
-[![GPL-v3](assets/widgets/license-widget.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
-</div><div align="center" style="width:100%; display:flex; justify-content:space-between;">
-
-[![Matrix](assets/widgets/mat-widget.svg)](https://matrix.to/#/#LibreTube:matrix.org)
-[![Mastodon](assets/widgets/mast-widget.svg)](https://fosstodon.org/@libretube)
-[![Lemmy](assets/widgets/lemmy-widget.svg)](https://feddit.rocks/c/libretube)
-
-
-</div>
-
 <br>
 
 ## 🤖 About this Fork
@@ -35,17 +22,11 @@ It creates a self-sustaining ecosystem where the app updates itself from this re
   - **Picture-in-Picture Support**: Enable PiP directly from the audio player.
   - **Enhanced Title Display**: Support for 2-line titles without scrolling marquee.
 
-
 ---
 
-
----
-
-## 🤝 Contributing & Credits
+## 🤝 Credits
 
 This project is a personal fork of **LibreTube**, originally created and maintained by [Bnyro](https://github.com/Bnyro). A huge thanks to them for their work!
-
-We welcome contributions! Whether it's code, design, or translations, feel free to open a Pull Request following [conventional commit types](https://github.com/commitizen/conventional-commit-types/blob/master/index.json).
 
 **Special Thanks:**
 - **Design & Banners**: [XelXen](https://github.com/XelXen)

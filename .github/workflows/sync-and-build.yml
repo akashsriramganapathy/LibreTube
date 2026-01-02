@@ -105,7 +105,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build with Gradle
-        run: ./gradlew assembleRelease --stacktrace -PrunNumber=${{ github.run_number }}
+        run: ./gradlew assembleRelease --stacktrace -PrunNumber=${{ github.run_number }} -PreleaseTag=${{ env.RELEASE_TAG }}
 
       - name: Sign APK
         uses: ilharp/sign-android-release@v2

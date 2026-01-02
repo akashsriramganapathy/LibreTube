@@ -21,23 +21,26 @@ class UpdateChecker(private val context: Context) {
     suspend fun checkUpdate(isManualCheck: Boolean = false) {
         val currentVersionName = BuildConfig.VERSION_NAME
         var currentRunNumber = 0
+        var isExperimental = false
 
         if (currentVersionName.startsWith("Nightly-Run")) {
             currentRunNumber = currentVersionName.substringAfter("Nightly-Run").toIntOrNull() ?: 0
-        } else {
-             // Fallback for stable versions or if format changes, but since valid check is digits only which is bad
-             // We assume running locally (stable) we always want to check against nightly if available
-             // But user said current version is v0.29.01. "291".
-             // Let's assume stable versions are "older" than nightlies for this specific use case, or just checking numbers.
-             // If manual check, user expects update.
+        } else if (currentVersionName.startsWith("Experimental-Run")) {
+            currentRunNumber = currentVersionName.substringAfter("Experimental-Run").toIntOrNull() ?: 0
+            isExperimental = true
         }
 
         try {
-            val response = RetrofitInstance.externalApi.getLatestRelease()
-            // Remote name format: "Nightly Build 9"
+            val response = if (isExperimental) {
+                 RetrofitInstance.externalApi.getReleaseByTag("experimental")
+            } else {
+                 RetrofitInstance.externalApi.getLatestRelease()
+            }
+            
+            // Remote name format: "Nightly Build 9" or "Experimental Build 9"
             val remoteRunNumber = response.name.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
 
-            Log.d(TAG(), "Checking update: Local Run: $currentRunNumber, Remote Run: $remoteRunNumber")
+            Log.d(TAG(), "Checking update: Mode=${if(isExperimental) "Exp" else "Nightly"}, Local: $currentRunNumber, Remote: $remoteRunNumber")
 
             if (remoteRunNumber >= currentRunNumber) {
                 withContext(Dispatchers.Main) {

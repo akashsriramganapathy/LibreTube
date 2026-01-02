@@ -24,8 +24,6 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.session.MediaController
-import androidx.core.app.PictureInPictureModeChangedInfo
-import androidx.core.app.PictureInPictureCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -219,10 +217,9 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         }
 
         binding.togglePip.setOnClickListener {
-            if (PictureInPictureCompat.isPictureInPictureAvailable(requireContext())) {
-                 // Basic params, can be customized
-                 val params = androidx.core.app.PictureInPictureModeChangedInfo(true)
-                 PictureInPictureCompat.enterPictureInPictureMode(requireActivity(), null) 
+            if (requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
+                 val params = PictureInPictureParams.Builder().build()
+                 requireActivity().enterPictureInPictureMode(params)
             }
         }
 

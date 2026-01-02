@@ -34,7 +34,14 @@ android {
         targetSdk = 35
         versionCode = 64
         val runNumber = if (project.hasProperty("runNumber")) project.property("runNumber") as String else null
-        versionName = if (runNumber != null) "Nightly-Run$runNumber" else "0.29.1"
+        val releaseTag = if (project.hasProperty("releaseTag")) project.property("releaseTag") as String else "nightly"
+        
+        versionName = if (runNumber != null) {
+            if (releaseTag == "experimental") "Experimental-Run$runNumber"
+            else "Nightly-Run$runNumber"
+        } else {
+            "0.29.1"
+        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string", "app_name", "LibreTube")
     }

@@ -38,9 +38,13 @@ interface ExternalApi {
     @GET("config")
     suspend fun getInstanceConfig(@Url url: String): PipedConfig
 
+
     // fetch latest version info
     @GET(GITHUB_API_URL)
     suspend fun getLatestRelease(): UpdateInfo
+
+    @GET("https://api.github.com/repos/akashsriramganapathy/LibreTube/releases/tags/{tag}")
+    suspend fun getReleaseByTag(@Path("tag") tag: String): UpdateInfo
 
     @GET("$RYD_API_URL/votes")
     suspend fun getVotes(@Query("videoId") videoId: String): VoteInfo
