@@ -10,7 +10,6 @@
 
 **LibreTube Local Edition** is a specialized fork developed to transform LibreTube into a fully self-contained media player. It eliminates all reliance on external Piped instances, ensuring absolute privacy and zero data leakage. Your subscriptions, playlists, and history never leave your device.
 
----
 
 ## 🚀 Exclusive Features
 
@@ -25,27 +24,6 @@ This fork introduces powerful capabilities not found in the official release:
 - **Fork-Aware Updates**: Includes a custom `UpdateManager` that tracks *this specific repository*, ensuring you receive updates for the Local Edition rather than the official mainline.
 - **Smart Background Checks**: A configurable `UpdateWorker` (15m to 24h) silently checks for new releases, keeping your local version current without manual intervention.
 
----
-
-## 🛠️ Building from Source
-
-To build this project locally, you will need Android Studio and the Android SDK.
-
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/akashsriramganapathy/LibreTube.git
-    cd LibreTube
-    ```
-
-2.  **Open in Android Studio:**
-    - Select `File > Open` and choose the cloned directory.
-    - Allow Gradle to sync.
-
-3.  **Build:**
-    - Select `Build > Build Bundle(s) / APK(s) > Build APK(s)`.
-
----
-
 ## 🤝 Credits
 
 This project is a personal fork of **[LibreTube](https://github.com/libre-tube/LibreTube)**, originally created and maintained by **[Bnyro](https://github.com/Bnyro)**. Massive credit to the original team for their incredible work on the base application.
@@ -55,7 +33,6 @@ This project is a personal fork of **[LibreTube](https://github.com/libre-tube/L
 - **Screenshots & Testing**: [ARBoyGo](https://github.com/ARBoyGo)
 - **Emoji Assets**: [OpenMoji](https://openmoji.org)
 
----
 
 ## 📄 License
 
