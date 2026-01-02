@@ -24,11 +24,7 @@ object ProxyHelper {
      * Decide whether the proxy should be used or not for a given stream URL based on user preferences
      */
     fun rewriteUrlUsingProxyPreference(url: String): String {
-        if (PlayerHelper.disablePipedProxy) {
-            return unwrapUrl(url)
-        }
-
-        return proxyRewriteUrl(url) ?: url
+        return unwrapUrl(url)
     }
 
     /**

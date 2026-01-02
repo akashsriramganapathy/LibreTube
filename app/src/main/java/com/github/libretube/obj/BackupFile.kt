@@ -6,6 +6,7 @@ import com.github.libretube.db.obj.LocalSubscription
 
 import com.github.libretube.db.obj.SearchHistoryItem
 import com.github.libretube.db.obj.SubscriptionGroup
+import com.github.libretube.db.obj.PlaylistBookmark
 import com.github.libretube.db.obj.WatchHistoryItem
 import com.github.libretube.db.obj.WatchPosition
 import kotlinx.serialization.ExperimentalSerializationApi

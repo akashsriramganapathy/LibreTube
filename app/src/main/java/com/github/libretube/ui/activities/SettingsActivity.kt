@@ -7,7 +7,7 @@ import androidx.fragment.app.replace
 import com.github.libretube.R
 import com.github.libretube.databinding.ActivitySettingsBinding
 import com.github.libretube.ui.base.BaseActivity
-import com.github.libretube.ui.preferences.InstanceSettings
+
 import com.github.libretube.ui.preferences.MainSettings
 
 class SettingsActivity : BaseActivity() {
@@ -36,9 +36,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     private fun handleRedirect() {
-        val redirectKey = intent.extras?.getString(REDIRECT_KEY)
-
-        if (redirectKey == REDIRECT_TO_INTENT_SETTINGS) redirectTo<InstanceSettings>()
+        // No-op
     }
 
     fun changeTopBarText(text: String) {
