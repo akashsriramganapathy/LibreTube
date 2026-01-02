@@ -54,6 +54,11 @@
             app:title="@string/auto_backup_location"
             app:summary="@string/auto_backup_location_not_set" />
 
+        <Preference
+            app:key="auto_backup_time"
+            app:title="@string/auto_backup_time"
+            app:summary="@string/auto_backup_time_not_set" />
+
         <EditTextPreference
             app:key="auto_backup_max_files"
             app:title="@string/auto_backup_max_files"

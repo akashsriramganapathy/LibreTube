@@ -485,6 +485,8 @@
     <string name="auto_backup_max_files">Max backups to keep</string>
     <string name="auto_backup_location_not_set">Not set</string>
     <string name="auto_backup_permission_error">Cannot access backup location. Please select again.</string>
+    <string name="auto_backup_time">Backup Time</string>
+    <string name="auto_backup_time_not_set">Set a time for daily backup</string>
     <string name="audio_track_format">%1$s - %2$s</string>
     <string name="unknown_audio_language">Unknown audio language</string>
     <string name="unknown_audio_track_type">Unknown audio track type</string>

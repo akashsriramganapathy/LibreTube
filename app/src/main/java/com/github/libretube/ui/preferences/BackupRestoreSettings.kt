@@ -239,6 +239,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
     private fun setupAutoBackupPreferences() {
         val enableAutoBackup = findPreference<androidx.preference.SwitchPreferenceCompat>(PreferenceKeys.AUTO_BACKUP_ENABLED)
         val backupLocation = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)
+        val backupTime = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_TIME)
         val maxFiles = findPreference<androidx.preference.EditTextPreference>(PreferenceKeys.AUTO_BACKUP_MAX_FILES)
 
         // Set initial state
@@ -247,9 +248,31 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             backupLocation?.summary = savedPath
         }
 
+        val savedTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00") // Default to 2 AM
+        backupTime?.summary = savedTime
+
         // Location click listener
         backupLocation?.setOnPreferenceClickListener {
             selectAutoBackupLocation.launch(null)
+            true
+        }
+        
+        // Time click listener
+        backupTime?.setOnPreferenceClickListener {
+            val currentTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00").split(":")
+            val hour = currentTime[0].toInt()
+            val minute = currentTime[1].toInt()
+
+            android.app.TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
+                val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_TIME, formattedTime)
+                backupTime.summary = formattedTime
+                
+                // Reschedule worker if enabled
+                if (PreferenceHelper.getBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, false)) {
+                     com.github.libretube.workers.AutoBackupWorker.enqueueWork(requireContext().applicationContext)
+                }
+            }, hour, minute, true).show() // true for 24h view
             true
         }
 
@@ -259,15 +282,19 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                 val path = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
                 if (path.isEmpty()) {
                     requireContext().toastFromMainThread(R.string.auto_backup_permission_error)
-                    // Launch picker if enabling without path? Maybe better UX to just warn.
-                    // Let's force valid path before enabling? Or just toast.
-                    // Toast is simpler.
+                    // Launch picker if enabling without path, or just toast.
                     selectAutoBackupLocation.launch(null)
                     false // Don't enable yet
                 } else {
+                    // Reschedule immediately when enabling
+                    com.github.libretube.workers.AutoBackupWorker.enqueueWork(requireContext().applicationContext)
                     true
                 }
             } else {
+                // Determine if we should cancel work? 
+                // PeriodicWork "UPDATE" policy with existing work usually keeps it running but we check "enabled" flag inside doWork too.
+                // Re-enqueuing isn't strictly necessary on disable if doWork checks the flag, but good practice if we wanted to cancel.
+                // For now, doWork checking the flag is sufficient.
                 true
             }
         }

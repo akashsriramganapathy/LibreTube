@@ -107,9 +107,29 @@ class AutoBackupWorker(
         const val AUTO_BACKUP_MAX_FILES_DEFAULT = 3
 
         fun enqueueWork(context: Context) {
+            val targetTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00")
+            val parts = targetTime.split(":")
+            val targetHour = parts.getOrElse(0) { "02" }.toInt()
+            val targetMinute = parts.getOrElse(1) { "00" }.toInt()
+
+            val now = java.util.Calendar.getInstance()
+            val target = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, targetHour)
+                set(java.util.Calendar.MINUTE, targetMinute)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }
+
+            if (target.before(now)) {
+                target.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            }
+
+            val initialDelay = target.timeInMillis - now.timeInMillis
+
             val cleanupRequest = PeriodicWorkRequestBuilder<AutoBackupWorker>(
                 24, TimeUnit.HOURS
-            ).build()
+            ).setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+             .build()
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
