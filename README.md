@@ -1,25 +1,29 @@
 ## 🤖 About this Fork
-**This is a personal fork of LibreTube, maintained and enhanced using Artificial Intelligence.**
-It creates a self-sustaining ecosystem where the app updates itself from this repository, and this repository keeps itself up-to-date with the official upstream source.
+**This is a personal, "Local-Only" fork of LibreTube, maintained and enhanced using Artificial Intelligence.**
+It transforms LibreTube into a fully self-contained media player that prioritizes local data privacy and offline capability, removing dependence on external Piped instances.
 
-### ✨ Added Features
-- **Self-Updater**: 
-  - Integrated `UpdateManager` that downloads and installs updates directly within the app.
-  - Uses Android's `PackageInstaller.Session` API for seamless updates.
-- **Smart Auto-Sync**: 
-  - Automated GitHub Action that polls the official LibreTube repository every 30 minutes.
-  - Automatically merges upstream changes and builds a new release only when the official build is successful.
-- **Background Updates**:
-  - `UpdateWorker` runs in the background (WorkManager) to check for updates even when the app is closed.
-  - Configurable update frequency (15m to 24h) with battery drain warnings.
-- **Custom Update Source**:
-  - The app is hardcoded to check *this* repository for updates, ensuring you stay on this custom fork while getting all official improvements.
-- **Audio Player Improvements (Experimental)**:
-  - **Inline Video in Audio Mode**: View the video feed directly within audio mode.
-  - **Persistent Video on Minimize**: Video continues playing in the mini-player instead of reverting to a thumbnail.
-  - **Picture-in-Picture Support**: Enable PiP directly from the audio player.
-  - **Enhanced Title Display**: Support for 2-line titles without scrolling marquee.
+### ✨ Key Features
 
+#### 🔒 Full Local Mode
+- **No Piped Backend**: All reliance on Piped instances, proxy servers, and remote account management has been completely removed.
+- **Local Data Only**: All playlists, subscriptions, and watch history are stored locally on your device in a secure database.
+- **Privacy First**: Your viewing habits and data never leave your device.
+
+#### 🔄 Self-Updater
+- **Integrated Updates**: Includes a custom `UpdateManager` that downloads and installs updates directly from this repository.
+- **Background Checks**: `UpdateWorker` automatically checks for updates in the background (configurable from 15m to 24h) to ensure you're always running the latest version.
+- **Seamless Upgrade**: Uses Android's `PackageInstaller` for smooth in-app updates.
+- **Custom Source**: Hardcoded to track *this* specific fork, ensuring you don't accidentally revert to the official mainline release.
+
+#### 🎧 Audio Player Improvements (Experimental)
+- **Inline Video Toggle**: Switch between audio-only and video mode instantly within the player.
+- **Persistent Playback**: Video playback continues seamlessly in the mini-player without reverting to a static thumbnail.
+- **Picture-in-Picture**: Enhanced PiP support directly from the audio player interface.
+- **Better Metadata**: Support for 2-line titles in the player notification and UI, removing the need for slow scrolling marquees.
+
+### ⚡ Automated Upstream Sync
+- This repository utilizes a "Smart Auto-Sync" GitHub Action that checks the official LibreTube repository every 30 minutes.
+- It automatically merges upstream improvements while resolving conflicts to preserve the "Local Mode" architecture, ensuring you get the best of both worlds: official bug fixes + exclusive local features.
 
 ## 🤝 Credits
 
