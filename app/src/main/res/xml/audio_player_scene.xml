@@ -52,7 +52,7 @@
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintEnd_toEndOf="parent" />
         <Constraint
-            android:id="@+id/video_player_view"
+            android:id="@+id/video_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:alpha="1"
@@ -111,7 +111,7 @@
             motion:layout_constraintTop_toTopOf="@+id/audio_player_container" />
         
         <Constraint
-            android:id="@+id/video_player_view"
+            android:id="@+id/video_container"
             android:layout_width="96dp"
             android:layout_height="0dp"
             android:alpha="1"

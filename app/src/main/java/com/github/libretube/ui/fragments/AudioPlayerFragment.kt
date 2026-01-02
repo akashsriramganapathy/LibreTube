@@ -140,18 +140,20 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         // If in PiP, ensure video is visible
         if (isInPictureInPictureMode) {
             binding.videoPlayerView.player = playerController
-            binding.videoPlayerView.isVisible = true
+            binding.videoContainer.isVisible = true
+            binding.videoContainer.alpha = 1.0f
             // Hide the thumbnail so it doesn't cover the video if constraints collapse uniquely
             binding.thumbnail.isVisible = false 
         } else {
             // Restore state based on inline video toggle
             if (isInlineVideoEnabled) {
                 binding.videoPlayerView.player = playerController
-                binding.videoPlayerView.isVisible = true
+                binding.videoContainer.isVisible = true
+                binding.videoContainer.alpha = 1.0f
                 binding.thumbnail.isVisible = false
             } else {
                 binding.videoPlayerView.player = null
-                binding.videoPlayerView.isVisible = false
+                binding.videoContainer.isVisible = false
                 binding.thumbnail.isVisible = true
             }
         }
@@ -377,15 +379,15 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             
             // Update View properties directly
             binding.thumbnail.isGone = true
-            binding.videoPlayerView.isVisible = true
-            binding.videoPlayerView.alpha = 1.0f
+            binding.videoContainer.isVisible = true
+            binding.videoContainer.alpha = 1.0f
             binding.videoPlayerView.player = player
             binding.toggleVideo.setIconResource(R.drawable.ic_image)
             
             // Update ConstraintSet to ensure MotionLayout respects it
             startConstraintSet?.setVisibility(R.id.thumbnail, View.GONE)
-            startConstraintSet?.setVisibility(R.id.video_player_view, View.VISIBLE)
-            startConstraintSet?.setAlpha(R.id.video_player_view, 1.0f)
+            startConstraintSet?.setVisibility(R.id.video_container, View.VISIBLE)
+            startConstraintSet?.setAlpha(R.id.video_container, 1.0f)
             
             player.sendCustomCommand(
                 AbstractPlayerService.runPlayerActionCommand,
@@ -396,8 +398,8 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             
             // Update View properties directly
             binding.videoPlayerView.player = null
-            binding.videoPlayerView.isGone = true
-            binding.videoPlayerView.alpha = 0.0f // Force hiding
+            binding.videoContainer.isGone = true
+            binding.videoContainer.alpha = 0.0f // Force hiding
             binding.thumbnail.isVisible = true
             binding.thumbnail.alpha = 1.0f
             binding.toggleVideo.setIconResource(R.drawable.ic_movie)
@@ -405,8 +407,8 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             // Update ConstraintSet
             startConstraintSet?.setVisibility(R.id.thumbnail, View.VISIBLE)
             startConstraintSet?.setAlpha(R.id.thumbnail, 1.0f)
-            startConstraintSet?.setVisibility(R.id.video_player_view, View.GONE)
-            startConstraintSet?.setAlpha(R.id.video_player_view, 0.0f)
+            startConstraintSet?.setVisibility(R.id.video_container, View.GONE)
+            startConstraintSet?.setAlpha(R.id.video_container, 0.0f)
             
             player.sendCustomCommand(
                 AbstractPlayerService.runPlayerActionCommand,
@@ -425,7 +427,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             }
         }
         
-        Log.d(TAG(), "toggleInlineVideo: END. thumbVis=${binding.thumbnail.visibility}, vidVis=${binding.videoPlayerView.visibility}")
+        Log.d(TAG(), "toggleInlineVideo: END. thumbVis=${binding.thumbnail.visibility}, vidVis=${binding.videoContainer.visibility}")
     }
 
     fun playNextVideo(videoId: String) {
