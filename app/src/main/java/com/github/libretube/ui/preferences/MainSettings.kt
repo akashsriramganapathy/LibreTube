@@ -7,7 +7,7 @@ import com.github.libretube.BuildConfig
 import com.github.libretube.R
 import com.github.libretube.helpers.PreferenceHelper
 import com.github.libretube.ui.base.BasePreferenceFragment
-import com.github.libretube.ui.dialogs.ErrorDialog
+
 import com.github.libretube.ui.dialogs.LogViewerDialog
 import com.github.libretube.util.UpdateChecker
 import kotlinx.coroutines.Dispatchers

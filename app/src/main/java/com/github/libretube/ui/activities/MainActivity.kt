@@ -45,7 +45,7 @@ import com.github.libretube.helpers.NetworkHelper
 import com.github.libretube.helpers.PreferenceHelper
 import com.github.libretube.helpers.ThemeHelper
 import com.github.libretube.ui.base.BaseActivity
-import com.github.libretube.ui.dialogs.ErrorDialog
+
 import com.github.libretube.ui.dialogs.ImportTempPlaylistDialog
 import com.github.libretube.ui.extensions.onSystemInsets
 import com.github.libretube.ui.fragments.AudioPlayerFragment
@@ -227,11 +227,7 @@ class MainActivity : BaseActivity() {
 
         binding.toolbar.title = ThemeHelper.getStyledAppName(this)
 
-        // handle error logs
-        PreferenceHelper.getErrorLog().ifBlank { null }?.let {
-            if (!BuildConfig.DEBUG)
-                ErrorDialog().show(supportFragmentManager, null)
-        }
+
 
         setupSubscriptionsBadge()
 
@@ -459,27 +455,8 @@ class MainActivity : BaseActivity() {
                 true
             }
 
-            R.id.action_about -> {
-                val aboutIntent = Intent(this, AboutActivity::class.java)
-                startActivity(aboutIntent)
-                true
-            }
 
-            R.id.action_help -> {
-                val helpIntent = Intent(this, HelpActivity::class.java)
-                startActivity(helpIntent)
-                true
-            }
 
-            R.id.action_donate -> {
-                IntentHelper.openLinkFromHref(
-                    this,
-                    supportFragmentManager,
-                    AboutActivity.DONATE_URL,
-                    forceDefaultOpen = true
-                )
-                true
-            }
 
             else -> super.onOptionsItemSelected(item)
         }
