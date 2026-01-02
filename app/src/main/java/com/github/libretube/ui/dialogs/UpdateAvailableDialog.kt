@@ -57,7 +57,9 @@ class UpdateAvailableDialog : DialogFragment() {
         }
 
         val appContext = requireContext().applicationContext
-        val url = "https://github.com/akashsriramganapathy/LibreTube/releases/download/nightly/LibreTube-Nightly.apk"
+
+        val url = releaseUrl ?: return // Should not happen if arguments are passed correctly
+
         // Use external files dir to match logger and make it accessible
         val outputFile = File(appContext.getExternalFilesDir(null), "LibreTube-Update.apk")
         if (outputFile.exists()) {

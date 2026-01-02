@@ -47,11 +47,23 @@ class UpdateChecker(private val context: Context) {
 
             Log.d(TAG(), "Checking update: Mode=${if(isExperimental) "Exp" else "Nightly"}, Local: $currentRunNumber, Remote: $remoteRunNumber")
 
-            if (remoteRunNumber >= currentRunNumber) {
-                withContext(Dispatchers.Main) {
-                    showUpdateAvailableDialog(response)
+            if (remoteRunNumber > currentRunNumber) {
+                // Find the APK asset
+                val apkAsset = response.assets.find { it.name.endsWith(".apk") }
+                if (apkAsset != null) {
+                    withContext(Dispatchers.Main) {
+                        showUpdateAvailableDialog(response, apkAsset.browserDownloadUrl)
+                    }
+                    Log.i(TAG(), "Update found: ${response.name}, URL: ${apkAsset.browserDownloadUrl}")
+                } else {
+                    Log.w(TAG(), "Update found but no APK asset: ${response.name}")
+                    if (isManualCheck) {
+                        // Fallback or just toast failure to find APK
+                         withContext(Dispatchers.Main) {
+                             context.toastFromMainDispatcher("Update found but no APK available.")
+                         }
+                    }
                 }
-                Log.i(TAG(), "Update found: $response")
             } else if (isManualCheck) {
                 context.toastFromMainDispatcher(R.string.app_uptodate)
             }
@@ -60,7 +72,7 @@ class UpdateChecker(private val context: Context) {
         }
     }
 
-    private fun showUpdateAvailableDialog(response: UpdateInfo) {
+    private fun showUpdateAvailableDialog(response: UpdateInfo, downloadUrl: String) {
         if (context is androidx.lifecycle.LifecycleOwner &&
             context.lifecycle.currentState != androidx.lifecycle.Lifecycle.State.RESUMED
         ) {
@@ -71,7 +83,7 @@ class UpdateChecker(private val context: Context) {
         val args =
             Bundle().apply {
                 putString(appUpdateChangelog, sanitizeChangelog(response.body))
-                putString(appUpdateURL, response.htmlUrl)
+                putString(appUpdateURL, downloadUrl)
                 putString("update_name", response.name)
             }
         dialog.arguments = args
