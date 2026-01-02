@@ -52,12 +52,6 @@ class BackupDialog : DialogFragment() {
 
         data object LocalPlaylists : BackupOption(R.string.local_playlists, onSelected = {
             it.localPlaylists = Database.localPlaylistsDao().getAll()
-            it.playlists = it.localPlaylists?.map { (playlist, playlistVideos) ->
-                val videos = playlistVideos.map { item ->
-                    "${ShareDialog.YOUTUBE_FRONTEND_URL}/watch?v=${item.videoId}"
-                }
-                PipedImportPlaylist(playlist.name, "playlist", "private", videos)
-            }
         })
 
         data object SubscriptionGroups : BackupOption(R.string.channel_groups, onSelected = {
@@ -82,8 +76,6 @@ class BackupDialog : DialogFragment() {
         val backupOptions = listOf(
             BackupOption.WatchHistory,
             BackupOption.WatchPositions,
-            BackupOption.SearchHistory,
-            BackupOption.LocalSubscriptions,
             BackupOption.LocalSubscriptions,
             BackupOption.PlaylistBookmarks,
             BackupOption.LocalPlaylists,

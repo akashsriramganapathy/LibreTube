@@ -14,6 +14,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.github.libretube.R
 import com.github.libretube.helpers.BackupHelper
+import com.github.libretube.constants.PreferenceKeys
 import com.github.libretube.helpers.PreferenceHelper
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
