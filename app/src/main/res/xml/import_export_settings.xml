@@ -40,7 +40,7 @@
 
     </PreferenceCategory>
 
-    </PreferenceCategory>
+
 
     <PreferenceCategory app:title="@string/auto_backup">
 
