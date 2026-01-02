@@ -111,7 +111,7 @@ class AutoBackupWorker(
         const val WORK_NAME = "auto_backup_work"
         const val AUTO_BACKUP_MAX_FILES_DEFAULT = 3
 
-        fun enqueueWork(context: Context) {
+        fun enqueueWork(context: Context, existingPeriodicWorkPolicy: ExistingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE) {
             val targetTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00")
             val parts = targetTime.split(":")
             val targetHour = parts.getOrElse(0) { "02" }.toInt()
@@ -138,7 +138,7 @@ class AutoBackupWorker(
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
-                ExistingPeriodicWorkPolicy.UPDATE,
+                existingPeriodicWorkPolicy,
                 cleanupRequest
             )
         }

@@ -44,7 +44,7 @@ class LibreTubeApp : Application() {
         )
 
         // Schedule Auto Backup (if enabled)
-        com.github.libretube.workers.AutoBackupWorker.enqueueWork(this)
+        com.github.libretube.workers.AutoBackupWorker.enqueueWork(this, ExistingPeriodicWorkPolicy.KEEP)
 
         /**
          * Fetch the image proxy URL for local playlists and the watch history
