@@ -29,7 +29,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.github.libretube"
+        applicationId = "com.github.libretube.test"
         minSdk = 26
         targetSdk = 35
         versionCode = 64
@@ -43,7 +43,9 @@ android {
             "0.29.1"
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        resValue("string", "app_name", "LibreTube")
+        
+        val appName = if (releaseTag == "experimental") "LTE" else "LTN"
+        resValue("string", "app_name", appName)
         val isExperimental = releaseTag == "experimental"
         buildConfigField("boolean", "IS_EXPERIMENTAL", isExperimental.toString())
     }
