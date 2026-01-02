@@ -360,6 +360,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
     private var isInlineVideoEnabled = false
     
     private fun toggleInlineVideo() {
+        Log.d(TAG(), "toggleInlineVideo: Switching video mode. Current state inlineEnabled=\$isInlineVideoEnabled")
         val player = playerController ?: return
         
         isInlineVideoEnabled = !isInlineVideoEnabled
