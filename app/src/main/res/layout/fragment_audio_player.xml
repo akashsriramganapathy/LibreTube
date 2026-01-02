@@ -388,7 +388,8 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/video_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="16:9"
         android:layout_gravity="center"
         android:layout_marginHorizontal="20dp"
         android:layout_marginVertical="10dp"
