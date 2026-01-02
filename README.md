@@ -1,5 +1,3 @@
-<br>
-
 ## 🤖 About this Fork
 **This is a personal fork of LibreTube, maintained and enhanced using Artificial Intelligence.**
 It creates a self-sustaining ecosystem where the app updates itself from this repository, and this repository keeps itself up-to-date with the official upstream source.
@@ -22,7 +20,6 @@ It creates a self-sustaining ecosystem where the app updates itself from this re
   - **Picture-in-Picture Support**: Enable PiP directly from the audio player.
   - **Enhanced Title Display**: Support for 2-line titles without scrolling marquee.
 
----
 
 ## 🤝 Credits
 
@@ -41,9 +38,3 @@ This project is a personal fork of **LibreTube**, originally created and maintai
 LibreTube is [Free Software](https://en.wikipedia.org/wiki/Free_software): You can use, study, share and modify it at your will. The app can be redistributed and/or modified under the terms of the
 [GNU General Public License version 3 or later](https://www.gnu.org/licenses/gpl.html) published by the 
 [Free Software Foundation](https://www.fsf.org/).
-
-<div align="right">
-<table><td>
-<a href="#start-of-content">↥ Scroll to top</a>
-</td></table>
-</div>
