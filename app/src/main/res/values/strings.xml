@@ -487,6 +487,12 @@
     <string name="auto_backup_permission_error">Cannot access backup location. Please select again.</string>
     <string name="auto_backup_time">Backup Time</string>
     <string name="auto_backup_time_not_set">Set a time for daily backup</string>
+    <string name="select_backup_location">Select Backup Location</string>
+    <string name="set_as_default_app">Set as Default App</string>
+    <string name="link_handling_title">Link Handling</string>
+    <string name="link_handling_desc">Set LibreTube as the default app for YouTube links.</string>
+    <string name="auto_backup_title">Auto Backup</string>
+    <string name="auto_backup_desc">Choose a folder to automatically save daily backups.</string>
     <string name="audio_track_format">%1$s - %2$s</string>
     <string name="unknown_audio_language">Unknown audio language</string>
     <string name="unknown_audio_track_type">Unknown audio track type</string>

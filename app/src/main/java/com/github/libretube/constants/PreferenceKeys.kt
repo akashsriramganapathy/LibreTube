@@ -112,6 +112,7 @@ object PreferenceKeys {
     const val DATA_SAVER_MODE = "data_saver_mode_key"
     const val MAX_IMAGE_CACHE = "image_cache_size"
     const val RESET_SETTINGS = "reset_settings"
+    const val SET_DEFAULT_APP = "set_default_app"
     const val CLEAR_SEARCH_HISTORY = "clear_search_history"
     const val CLEAR_WATCH_HISTORY = "clear_watch_history"
     const val CLEAR_WATCH_POSITIONS = "clear_watch_positions"

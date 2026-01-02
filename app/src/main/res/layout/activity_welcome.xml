@@ -43,71 +43,66 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/operation_mode_group"
-            app:selectionRequired="true"
-            app:singleSelection="true"
-            app:checkedButton="@+id/full_local_mode_toggle_group_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="10dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/full_local_mode_toggle_group_button"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/full_local_mode" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/piped_toggle_group_button"
-                style="?attr/materialButtonOutlinedStyle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/piped" />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
         <LinearLayout
             android:id="@+id/local_mode_info_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="10dp">
+            android:paddingHorizontal="10dp"
+            android:paddingBottom="10dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/full_local_mode_desc" />
+                android:text="@string/full_local_mode_desc"
+                android:layout_marginBottom="20dp"/>
 
-        </LinearLayout>
-
-        <LinearLayout
-            tools:visibility="gone"
-            android:id="@+id/instances_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            <!-- Auto Backup Section -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/auto_backup_title"
+                style="@style/TextAppearance.Material3.TitleMedium"
+                android:layout_marginBottom="4dp"/>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginBottom="10dp"
-                android:text="@string/choose_instance_long" />
+                android:text="@string/auto_backup_desc"
+                style="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?android:textColorSecondary"
+                android:layout_marginBottom="8dp"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/instances_recycler"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/select_backup_location"
+                style="?attr/materialButtonOutlinedStyle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clipToPadding="false"
-                android:fadeScrollbars="false"
-                android:paddingBottom="70dp"
-                android:scrollbars="vertical"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/instance_row" />
+                android:text="@string/select_backup_location"
+                android:layout_marginBottom="16dp"/>
+
+            <!-- Link Handling Section -->
+             <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/link_handling_title"
+                style="@style/TextAppearance.Material3.TitleMedium"
+                android:layout_marginBottom="4dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/link_handling_desc"
+                style="@style/TextAppearance.Material3.BodyMedium"
+                android:textColor="?android:textColorSecondary"
+                android:layout_marginBottom="8dp"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/set_default_app"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/set_as_default_app" />
 
         </LinearLayout>
     </LinearLayout>

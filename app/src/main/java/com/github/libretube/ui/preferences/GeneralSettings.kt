@@ -79,6 +79,17 @@ class GeneralSettings : BasePreferenceFragment() {
             showResetDialog()
             true
         }
+
+        val setDefaultApp = findPreference<Preference>(PreferenceKeys.SET_DEFAULT_APP)
+        setDefaultApp?.setOnPreferenceClickListener {
+            val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                android.content.Intent(android.provider.Settings.ACTION_APP_OPEN_BY_DEFAULT_SETTINGS, android.net.Uri.parse("package:${requireContext().packageName}"))
+            } else {
+                android.content.Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, android.net.Uri.parse("package:${requireContext().packageName}"))
+            }
+            startActivity(intent)
+            true
+        }
     }
 
     private fun showResetDialog() {

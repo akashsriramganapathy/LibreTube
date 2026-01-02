@@ -112,6 +112,12 @@
     <PreferenceCategory app:title="@string/misc">
 
         <Preference
+            android:icon="@drawable/ic_open"
+            app:key="set_default_app"
+            app:title="@string/set_as_default_app"
+            app:summary="@string/link_handling_desc" />
+
+        <Preference
             android:icon="@drawable/ic_reset"
             app:key="reset_settings"
             app:title="@string/reset" />
