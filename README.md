@@ -3,7 +3,7 @@
 
 [![GPL-v3](assets/widgets/license-widget.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 </div><div align="center" style="width:100%; display:flex; justify-content:space-between;">
-
+</div>
 
 
 ## 🤖 About this Fork
