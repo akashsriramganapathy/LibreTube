@@ -153,7 +153,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
 
 
-
     private fun makeVisible(vararg views: View) {
         views.forEach { it.isVisible = true }
     }

@@ -48,7 +48,7 @@ import com.github.libretube.db.obj.WatchPosition
         SubscriptionGroup::class,
         SubscriptionsFeedItem::class
     ],
-    version = 21,
+    version = 22,
     autoMigrations = [
         AutoMigration(from = 7, to = 8),
         AutoMigration(from = 8, to = 9),
@@ -57,11 +57,18 @@ import com.github.libretube.db.obj.WatchPosition
         AutoMigration(from = 16, to = 17),
         AutoMigration(from = 18, to = 19),
         AutoMigration(from = 19, to = 20),
-        AutoMigration(from = 20, to = 21)
+        AutoMigration(from = 20, to = 21),
+        AutoMigration(
+            from = 21,
+            to = 22,
+            spec = AppDatabase.DeleteCustomInstancesSpec::class
+        )
     ]
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
+    @androidx.room.DeleteTable(tableName = "customInstance")
+    class DeleteCustomInstancesSpec : androidx.room.migration.AutoMigrationSpec
     /**
      * Watch History
      */
