@@ -305,6 +305,19 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                  true
              }.getOrElse { false }
         }
+
+        val runBackupNow = findPreference<Preference>(PreferenceKeys.RUN_BACKUP_NOW)
+        runBackupNow?.setOnPreferenceClickListener {
+            val path = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
+            if (path.isEmpty()) {
+                 requireContext().toastFromMainThread(R.string.auto_backup_permission_error)
+                 selectAutoBackupLocation.launch(null)
+            } else {
+                 requireContext().toastFromMainThread(R.string.backup_started)
+                 com.github.libretube.workers.AutoBackupWorker.runNow(requireContext().applicationContext)
+            }
+            true
+        }
     }
 
     companion object {

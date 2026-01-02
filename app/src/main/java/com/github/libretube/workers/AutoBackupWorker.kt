@@ -137,5 +137,11 @@ class AutoBackupWorker(
                 cleanupRequest
             )
         }
+
+        fun runNow(context: Context) {
+            val request = androidx.work.OneTimeWorkRequestBuilder<AutoBackupWorker>()
+                .build()
+            WorkManager.getInstance(context).enqueue(request)
+        }
     }
 }

@@ -65,6 +65,11 @@
             app:defaultValue="3"
             android:inputType="number" />
 
+        <Preference
+            app:key="run_backup_now"
+            app:title="@string/run_backup_now"
+            android:icon="@drawable/ic_play_arrow" />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/app_backup">

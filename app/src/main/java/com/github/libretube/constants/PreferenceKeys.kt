@@ -132,6 +132,7 @@ object PreferenceKeys {
     const val AUTO_BACKUP_PATH = "auto_backup_path"
     const val AUTO_BACKUP_MAX_FILES = "auto_backup_max_files"
     const val AUTO_BACKUP_TIME = "auto_backup_time"
+    const val RUN_BACKUP_NOW = "run_backup_now"
 
     // History
     const val WATCH_HISTORY_SIZE = "watch_history_size"
