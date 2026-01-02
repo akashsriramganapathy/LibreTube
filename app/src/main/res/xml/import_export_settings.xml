@@ -40,6 +40,28 @@
 
     </PreferenceCategory>
 
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/auto_backup">
+
+        <SwitchPreferenceCompat
+            app:key="auto_backup_enabled"
+            app:title="@string/enable_auto_backup"
+            app:defaultValue="false" />
+
+        <Preference
+            app:key="auto_backup_path"
+            app:title="@string/auto_backup_location"
+            app:summary="@string/auto_backup_location_not_set" />
+
+        <EditTextPreference
+            app:key="auto_backup_max_files"
+            app:title="@string/auto_backup_max_files"
+            app:defaultValue="3"
+            android:inputType="number" />
+
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/app_backup">
 
         <Preference

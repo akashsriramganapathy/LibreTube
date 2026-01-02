@@ -215,6 +215,68 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             getBackupFile.launch(JSON)
             true
         }
+
+        setupAutoBackupPreferences()
+    }
+
+    private val selectAutoBackupLocation = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri == null) return@registerForActivityResult
+
+        try {
+            requireContext().contentResolver.takePersistableUriPermission(
+                uri,
+                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            val path = uri.toString()
+            PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_PATH, path)
+            findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)?.summary = path
+        } catch (e: Exception) {
+            com.github.libretube.extensions.toastFromMainDispatcher(R.string.auto_backup_permission_error)
+        }
+    }
+
+    private fun setupAutoBackupPreferences() {
+        val enableAutoBackup = findPreference<androidx.preference.SwitchPreferenceCompat>(PreferenceKeys.AUTO_BACKUP_ENABLED)
+        val backupLocation = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)
+        val maxFiles = findPreference<androidx.preference.EditTextPreference>(PreferenceKeys.AUTO_BACKUP_MAX_FILES)
+
+        // Set initial state
+        val savedPath = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
+        if (savedPath.isNotEmpty()) {
+            backupLocation?.summary = savedPath
+        }
+
+        // Location click listener
+        backupLocation?.setOnPreferenceClickListener {
+            selectAutoBackupLocation.launch(null)
+            true
+        }
+
+        // Enable toggle listener (check if path is set)
+        enableAutoBackup?.setOnPreferenceChangeListener { _, newValue ->
+            if (newValue as Boolean) {
+                val path = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
+                if (path.isEmpty()) {
+                    com.github.libretube.extensions.toastFromMainDispatcher(R.string.auto_backup_permission_error)
+                    // Launch picker if enabling without path? Maybe better UX to just warn.
+                    // Let's force valid path before enabling? Or just toast.
+                    // Toast is simpler.
+                    selectAutoBackupLocation.launch(null)
+                    false // Don't enable yet
+                } else {
+                    true
+                }
+            } else {
+                true
+            }
+        }
+        
+        maxFiles?.setOnPreferenceChangeListener { _, newValue ->
+             runCatching {
+                 (newValue as String).toInt()
+                 true
+             }.getOrElse { false }
+        }
     }
 
     companion object {

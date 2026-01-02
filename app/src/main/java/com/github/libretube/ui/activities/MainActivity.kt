@@ -99,12 +99,23 @@ class MainActivity : BaseActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
+
         // show noInternet Activity if no internet available on app startup
         if (!NetworkHelper.isNetworkAvailable(this)) {
             val noInternetIntent = Intent(this, NoInternetActivity::class.java)
             startActivity(noInternetIntent)
             finish()
             return
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val result = androidx.core.content.ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            )
+            if (result != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS), 101)
+            }
         }
 
         val isAppConfigured =
