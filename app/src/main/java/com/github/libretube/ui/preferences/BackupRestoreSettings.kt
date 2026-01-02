@@ -260,9 +260,9 @@ class BackupRestoreSettings : BasePreferenceFragment() {
         
         // Time click listener
         backupTime?.setOnPreferenceClickListener {
-            val currentTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00").split(":")
-            val hour = currentTime[0].toInt()
-            val minute = currentTime[1].toInt()
+            val now = java.util.Calendar.getInstance()
+            val hour = now.get(java.util.Calendar.HOUR_OF_DAY)
+            val minute = now.get(java.util.Calendar.MINUTE)
 
             android.app.TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
                 val formattedTime = String.format("%02d:%02d", selectedHour, selectedMinute)
