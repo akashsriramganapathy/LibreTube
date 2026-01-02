@@ -234,13 +234,6 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             switchToVideoMode(currentId ?: return@setOnClickListener)
         }
 
-        binding.togglePip.setOnClickListener {
-            if (requireContext().packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)) {
-                 val params = PictureInPictureParams.Builder().build()
-                 requireActivity().enterPictureInPictureMode(params)
-            }
-        }
-
         binding.toggleVideo.setOnClickListener {
             toggleInlineVideo()
         }
@@ -274,6 +267,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
 
         val listener = AudioPlayerThumbnailListener(requireContext(), this)
         binding.thumbnail.setOnTouchListener(listener)
+        binding.videoPlayerView.setOnTouchListener(listener)
 
         binding.playPause.setOnClickListener {
             playerController?.togglePlayPauseState()
@@ -366,7 +360,6 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         val player = playerController ?: return
         
         isInlineVideoEnabled = !isInlineVideoEnabled
-        binding.togglePip.isVisible = !isInlineVideoEnabled
         
         if (isInlineVideoEnabled) {
             binding.thumbnail.isGone = true
