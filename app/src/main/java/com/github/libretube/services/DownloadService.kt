@@ -113,7 +113,12 @@ class DownloadService : LifecycleService() {
         IS_DOWNLOAD_RUNNING = true
         notifyForeground()
         sendBroadcast(Intent(ACTION_SERVICE_STARTED))
+        sendBroadcast(Intent(ACTION_SERVICE_STARTED))
         registerNetworkChangedCallback()
+        
+        lifecycleScope.launch(coroutineContext) {
+            updateForegroundNotification()
+        }
     }
 
     /**
@@ -271,8 +276,16 @@ class DownloadService : LifecycleService() {
         if (nextDownload != null) {
             resume(nextDownload.first)
         } else {
+            resume(nextDownload.first)
+        } else {
             stopServiceIfDone()
         }
+        
+        lifecycleScope.launch(coroutineContext) {
+            updateForegroundNotification()
+        }
+        
+        updateForegroundNotification()
     }
 
     private suspend fun progressDownload(
@@ -430,6 +443,10 @@ class DownloadService : LifecycleService() {
             } else {
                 pause(item.id)
             }
+
+            lifecycleScope.launch(coroutineContext) {
+                updateForegroundNotification()
+            }
         }
     }
 
@@ -478,6 +495,7 @@ class DownloadService : LifecycleService() {
         notificationManager.cancel(item.getNotificationId())
         Database.downloadDao().deleteDownloadItemById(id)
         stopServiceIfDone()
+        updateForegroundNotification()
     }
 
     /**
@@ -516,6 +534,22 @@ class DownloadService : LifecycleService() {
      */
     fun isDownloading(id: Int): Boolean {
         return downloadQueue[id]
+    }
+
+        )
+    }
+
+    private suspend fun updateForegroundNotification() {
+        val pendingCount = Database.downloadDao().countPendingItems()
+
+        summaryNotificationBuilder
+            .setContentTitle(getString(R.string.downloading))
+            .setContentText(getString(R.string.downloading_count, pendingCount))
+
+        notificationManager.notify(
+            NotificationId.DOWNLOAD_IN_PROGRESS.id,
+            summaryNotificationBuilder.build()
+        )
     }
 
     private fun notifyForeground() {

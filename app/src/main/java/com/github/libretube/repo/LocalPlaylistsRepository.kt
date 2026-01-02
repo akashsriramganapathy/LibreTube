@@ -52,12 +52,10 @@ class LocalPlaylistsRepository: PlaylistRepository {
             DatabaseHolder.Database.localPlaylistsDao().addPlaylistVideo(localPlaylistItem)
 
             val playlist = localPlaylist.playlist
-            if (playlist.thumbnailUrl.isEmpty()) {
-                // set the new playlist thumbnail URL
-                localPlaylistItem.thumbnailUrl?.let {
-                    playlist.thumbnailUrl = it
-                    DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(playlist)
-                }
+            // Always set the new playlist thumbnail URL to the last added video
+            localPlaylistItem.thumbnailUrl?.let {
+                playlist.thumbnailUrl = it
+                DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(playlist)
             }
         }
 
@@ -106,12 +104,12 @@ class LocalPlaylistsRepository: PlaylistRepository {
         DatabaseHolder.Database.localPlaylistsDao().removePlaylistVideo(
             transaction.videos[index]
         )
-        // set a new playlist thumbnail if the first video got removed
-        if (index == 0) {
+        // set a new playlist thumbnail if the last video got removed
+        if (index == transaction.videos.lastIndex) {
             transaction.playlist.thumbnailUrl =
-                transaction.videos.getOrNull(1)?.thumbnailUrl.orEmpty()
+                transaction.videos.getOrNull(index - 1)?.thumbnailUrl.orEmpty()
+            DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(transaction.playlist)
         }
-        DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(transaction.playlist)
 
         return true
     }
