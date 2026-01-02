@@ -49,8 +49,15 @@ object BackupHelper {
      */
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun restoreAdvancedBackup(context: Context, uri: Uri) = withContext(Dispatchers.IO) {
-        val backupFile = context.contentResolver.openInputStream(uri)?.use {
-            JsonHelper.json.decodeFromStream<BackupFile>(it)
+        val backupFile = try {
+            Log.d(TAG(), "Attempting safe restore of backup...")
+            context.contentResolver.openInputStream(uri)?.use {
+                JsonHelper.json.decodeFromStream<BackupFile>(it)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG(), "Error while reading backup: $e")
+            context.toastFromMainDispatcher(R.string.backup_file_corrupted)
+            null
         } ?: return@withContext
 
         Database.watchHistoryDao().insertAll(backupFile.watchHistory.orEmpty())
