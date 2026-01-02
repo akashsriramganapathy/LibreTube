@@ -66,4 +66,11 @@ object FileLogger {
             }
         }
     }
+    fun getLogContent(): String {
+        return logFile?.readText() ?: ""
+    }
+
+    fun clearLog() {
+        logFile?.writeText("")
+    }
 }
