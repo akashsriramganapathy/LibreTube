@@ -28,6 +28,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import com.github.libretube.extensions.toastFromMainThread
 
 class BackupRestoreSettings : BasePreferenceFragment() {
     private var backupFile = BackupFile()
@@ -231,7 +232,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_PATH, path)
             findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)?.summary = path
         } catch (e: Exception) {
-            com.github.libretube.extensions.toastFromMainDispatcher(R.string.auto_backup_permission_error)
+            requireContext().toastFromMainThread(R.string.auto_backup_permission_error)
         }
     }
 
@@ -257,7 +258,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             if (newValue as Boolean) {
                 val path = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
                 if (path.isEmpty()) {
-                    com.github.libretube.extensions.toastFromMainDispatcher(R.string.auto_backup_permission_error)
+                    requireContext().toastFromMainThread(R.string.auto_backup_permission_error)
                     // Launch picker if enabling without path? Maybe better UX to just warn.
                     // Let's force valid path before enabling? Or just toast.
                     // Toast is simpler.
