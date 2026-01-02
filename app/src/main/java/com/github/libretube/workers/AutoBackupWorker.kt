@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit
 import androidx.documentfile.provider.DocumentFile
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class AutoBackupWorker(
     appContext: Context,
@@ -73,13 +75,19 @@ class AutoBackupWorker(
         val fileName = "libretube-auto-backup-$timestamp.json"
 
         try {
+            // Serialize to string first to match Manual Backup behavior and debug size
+            val jsonString = kotlinx.serialization.json.Json.encodeToString(backupFile)
+            Log.d(TAG, "Serialized backup size: ${jsonString.length} chars")
+
             val file = tree.createFile("application/json", fileName)
             if (file == null) {
                 Log.e(TAG, "Failed to create backup file")
                 return@withContext Result.failure()
             }
-            
-            BackupHelper.createAdvancedBackup(applicationContext, file.uri, backupFile)
+
+            applicationContext.contentResolver.openOutputStream(file.uri)?.use { outputStream ->
+                outputStream.write(jsonString.toByteArray())
+            }
             
             // Prune old backups
             pruneBackups(tree)
