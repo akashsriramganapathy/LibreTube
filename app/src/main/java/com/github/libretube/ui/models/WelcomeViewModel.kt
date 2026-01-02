@@ -13,7 +13,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.github.libretube.R
-import com.github.libretube.helper.BackupHelper
+import com.github.libretube.helpers.BackupHelper
 import com.github.libretube.helpers.PreferenceHelper
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
