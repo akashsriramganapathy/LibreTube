@@ -132,9 +132,23 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
              binding.miniPlayerControls.isVisible = false
         }
         
-        // If in PiP, ensure video is visible if enabled
-        if (isInPictureInPictureMode && isInlineVideoEnabled) {
-             binding.videoPlayerView.isVisible = true
+        // If in PiP, ensure video is visible
+        if (isInPictureInPictureMode) {
+            binding.videoPlayerView.player = playerController
+            binding.videoPlayerView.isVisible = true
+            // Hide the thumbnail so it doesn't cover the video if constraints collapse uniquely
+            binding.thumbnail.isVisible = false 
+        } else {
+            // Restore state based on inline video toggle
+            if (isInlineVideoEnabled) {
+                binding.videoPlayerView.player = playerController
+                binding.videoPlayerView.isVisible = true
+                binding.thumbnail.isVisible = false
+            } else {
+                binding.videoPlayerView.player = null
+                binding.videoPlayerView.isVisible = false
+                binding.thumbnail.isVisible = true
+            }
         }
     }
 
@@ -157,9 +171,8 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
 
         initializeTransitionLayout()
 
-        // select the title TV in order for it to automatically scroll
-        binding.title.isSelected = true
-        binding.uploader.isSelected = true
+        // binding.title.isSelected = true 
+        // binding.uploader.isSelected = true
 
         binding.title.setOnLongClickListener {
             ClipboardHelper.save(requireContext(), text = binding.title.text.toString())

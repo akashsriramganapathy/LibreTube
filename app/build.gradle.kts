@@ -44,6 +44,8 @@ android {
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("string", "app_name", "LibreTube")
+        val isExperimental = releaseTag == "experimental"
+        buildConfigField("boolean", "IS_EXPERIMENTAL", isExperimental.toString())
     }
 
     ksp {

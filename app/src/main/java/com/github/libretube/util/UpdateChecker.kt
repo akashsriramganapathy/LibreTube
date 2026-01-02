@@ -21,13 +21,18 @@ class UpdateChecker(private val context: Context) {
     suspend fun checkUpdate(isManualCheck: Boolean = false) {
         val currentVersionName = BuildConfig.VERSION_NAME
         var currentRunNumber = 0
-        var isExperimental = false
 
-        if (currentVersionName.startsWith("Nightly-Run")) {
-            currentRunNumber = currentVersionName.substringAfter("Nightly-Run").toIntOrNull() ?: 0
-        } else if (currentVersionName.startsWith("Experimental-Run")) {
-            currentRunNumber = currentVersionName.substringAfter("Experimental-Run").toIntOrNull() ?: 0
-            isExperimental = true
+
+        // Check for updates based on the build type
+        val isExperimental = BuildConfig.IS_EXPERIMENTAL
+        
+        // Extract run number regardless of prefix
+        val runNumberPrefix = if (isExperimental) "Experimental-Run" else "Nightly-Run"
+        currentRunNumber = if (currentVersionName.startsWith(runNumberPrefix)) {
+            currentVersionName.substringAfter(runNumberPrefix).toIntOrNull() ?: 0
+        } else {
+            // Fallback for custom or legacy version names
+            currentVersionName.replace(Regex("[^0-9]"), "").toIntOrNull() ?: 0
         }
 
         try {
