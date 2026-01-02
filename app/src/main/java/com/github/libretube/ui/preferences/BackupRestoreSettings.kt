@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import com.github.libretube.extensions.toastFromMainThread
+import androidx.work.ExistingPeriodicWorkPolicy
 
 class BackupRestoreSettings : BasePreferenceFragment() {
     private var backupFile = BackupFile()
@@ -270,7 +271,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                 
                 // Reschedule worker if enabled
                 if (PreferenceHelper.getBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, false)) {
-                     com.github.libretube.workers.AutoBackupWorker.enqueueWork(requireContext().applicationContext)
+                     com.github.libretube.workers.AutoBackupWorker.enqueueWork(requireContext().applicationContext, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE)
                 }
             }, hour, minute, true).show() // true for 24h view
             true
@@ -287,7 +288,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                     false // Don't enable yet
                 } else {
                     // Reschedule immediately when enabling
-                    com.github.libretube.workers.AutoBackupWorker.enqueueWork(requireContext().applicationContext)
+                    com.github.libretube.workers.AutoBackupWorker.enqueueWork(requireContext().applicationContext, ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE)
                     true
                 }
             } else {

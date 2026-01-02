@@ -145,7 +145,8 @@ class AutoBackupWorker(
 
             val initialDelay = target.timeInMillis - now.timeInMillis
             
-            FileLogger.d(TAG, "Scheduling Auto Backup for $target (in $initialDelay ms)")
+            val dateFormat = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+            FileLogger.d(TAG, "Scheduling Auto Backup for ${dateFormat.format(target.time)} (in ${initialDelay / 1000}s)")
 
             val cleanupRequest = PeriodicWorkRequestBuilder<AutoBackupWorker>(
                 24, TimeUnit.HOURS
