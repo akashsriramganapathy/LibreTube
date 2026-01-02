@@ -15,6 +15,7 @@ class ExceptionHandler(
 
         // save the error log
         PreferenceHelper.saveErrorLog(exc.stackTraceToString())
+        com.github.libretube.logger.FileLogger.e("Crash", "Uncaught Exception", exc)
         // throw the exception with the default exception handler to make the app crash
         defaultExceptionHandler?.uncaughtException(thread, exc)
     }

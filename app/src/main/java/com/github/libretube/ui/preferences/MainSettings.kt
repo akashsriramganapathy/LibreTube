@@ -31,15 +31,7 @@ class MainSettings : BasePreferenceFragment() {
             true
         }
 
-        /*
-        val crashlog = findPreference<Preference>("crashlog")
-        crashlog?.isVisible = PreferenceHelper.getErrorLog().isNotEmpty() && BuildConfig.DEBUG
-        crashlog?.setOnPreferenceClickListener {
-            ErrorDialog().show(childFragmentManager, null)
-            crashlog.isVisible = false
-            true
-        }
-        */
+
         
         val viewLogs = findPreference<Preference>("view_logs")
         viewLogs?.setOnPreferenceClickListener {

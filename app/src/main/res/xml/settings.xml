@@ -73,11 +73,6 @@
             app:key="view_logs"
             app:title="@string/view_logs" />
 
-        <Preference
-            android:icon="@drawable/ic_info"
-            app:key="crashlog"
-            app:title="@string/crashlog"/>
-
     </PreferenceCategory>
 
 </PreferenceScreen>
