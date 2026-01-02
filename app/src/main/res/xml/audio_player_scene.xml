@@ -112,12 +112,11 @@
         
         <Constraint
             android:id="@+id/video_player_view"
-            android:layout_width="0dp"
+            android:layout_width="96dp"
             android:layout_height="0dp"
             android:alpha="1"
-            motion:layout_constraintTop_toTopOf="@id/miniPlayerThumbnail"
-            motion:layout_constraintBottom_toBottomOf="@id/miniPlayerThumbnail"
-            motion:layout_constraintStart_toStartOf="@id/miniPlayerThumbnail"
-            motion:layout_constraintEnd_toEndOf="@id/miniPlayerThumbnail" />
+            motion:layout_constraintTop_toTopOf="@id/miniPlayerControls"
+            motion:layout_constraintBottom_toBottomOf="@id/miniPlayerControls"
+            motion:layout_constraintStart_toStartOf="@id/miniPlayerControls" />
     </ConstraintSet>
 </MotionScene>
