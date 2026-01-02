@@ -19,33 +19,38 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.TimeUnit
 import androidx.documentfile.provider.DocumentFile
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class AutoBackupWorker(
     appContext: Context,
     workerParams: WorkerParameters
 ) : CoroutineWorker(appContext, workerParams) {
 
-    override suspend fun doWork(): Result {
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         if (!PreferenceHelper.getBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, false)) {
-            return Result.success()
+            return@withContext Result.success()
         }
 
         val backupPath = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
         if (backupPath.isEmpty()) {
-            return Result.failure()
+            return@withContext Result.failure()
         }
 
         val uri = Uri.parse(backupPath)
         val tree = DocumentFile.fromTreeUri(applicationContext, uri)
         if (tree == null || !tree.canWrite()) {
             Log.e(TAG, "Cannot write to backup location: $backupPath")
-            return Result.failure()
+            return@withContext Result.failure()
         }
 
         val backupFile = BackupFile()
         
         // Populate BackupFile with all data (Auto Backup implies full backup)
-        backupFile.watchHistory = Database.watchHistoryDao().getAll()
+        val watchHistory = Database.watchHistoryDao().getAll()
+        Log.d(TAG, "Fetched ${watchHistory.size} watch history items")
+        backupFile.watchHistory = watchHistory
+
         backupFile.watchPositions = Database.watchPositionDao().getAll()
         backupFile.searchHistory = Database.searchHistoryDao().getAll()
         backupFile.subscriptions = Database.localSubscriptionDao().getAll()
@@ -71,7 +76,7 @@ class AutoBackupWorker(
             val file = tree.createFile("application/json", fileName)
             if (file == null) {
                 Log.e(TAG, "Failed to create backup file")
-                return Result.failure()
+                return@withContext Result.failure()
             }
             
             BackupHelper.createAdvancedBackup(applicationContext, file.uri, backupFile)
@@ -81,10 +86,10 @@ class AutoBackupWorker(
             
         } catch (e: Exception) {
             Log.e(TAG, "Error during auto backup", e)
-            return Result.failure()
+            return@withContext Result.failure()
         }
 
-        return Result.success()
+        return@withContext Result.success()
     }
 
     private fun pruneBackups(tree: DocumentFile) {
