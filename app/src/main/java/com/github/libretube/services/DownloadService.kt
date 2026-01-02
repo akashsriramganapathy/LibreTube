@@ -113,7 +113,6 @@ class DownloadService : LifecycleService() {
         IS_DOWNLOAD_RUNNING = true
         notifyForeground()
         sendBroadcast(Intent(ACTION_SERVICE_STARTED))
-        sendBroadcast(Intent(ACTION_SERVICE_STARTED))
         registerNetworkChangedCallback()
         
         lifecycleScope.launch(coroutineContext) {
@@ -274,8 +273,6 @@ class DownloadService : LifecycleService() {
         val nextDownload =
             downloadFlow.firstOrNull { (_, status) -> status == DownloadStatus.Paused }
         if (nextDownload != null) {
-            resume(nextDownload.first)
-        } else {
             resume(nextDownload.first)
         } else {
             stopServiceIfDone()
@@ -534,9 +531,6 @@ class DownloadService : LifecycleService() {
      */
     fun isDownloading(id: Int): Boolean {
         return downloadQueue[id]
-    }
-
-        )
     }
 
     private suspend fun updateForegroundNotification() {
