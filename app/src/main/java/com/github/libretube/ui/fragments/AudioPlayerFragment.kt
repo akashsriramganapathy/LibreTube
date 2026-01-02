@@ -123,7 +123,9 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode)
         
-        binding.audioPlayerMain.isVisible = !isInPictureInPictureMode
+        binding.headerContainer.isVisible = !isInPictureInPictureMode
+        binding.controlsContainer.isVisible = !isInPictureInPictureMode
+        binding.artworkContainer.isVisible = !isInPictureInPictureMode
         binding.audioPlayerContainer.isVisible = !isInPictureInPictureMode
         
         // Handle mini player controls visibility
@@ -160,15 +162,20 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         super.onViewCreated(view, savedInstanceState)
 
         // manually apply additional padding for edge-to-edge compatibility
+        // manually apply additional padding for edge-to-edge compatibility
         activity.getSystemInsets()?.let { systemBars ->
-            with (binding.audioPlayerMain) {
-                setPadding(
-                    paddingLeft,
-                    paddingTop + systemBars.top,
-                    paddingRight,
-                    paddingBottom + systemBars.bottom
-                )
-            }
+            binding.headerContainer.setPadding(
+                binding.headerContainer.paddingLeft,
+                binding.headerContainer.paddingTop + systemBars.top,
+                binding.headerContainer.paddingRight,
+                binding.headerContainer.paddingBottom
+            )
+            binding.controlsContainer.setPadding(
+                binding.controlsContainer.paddingLeft,
+                binding.controlsContainer.paddingTop,
+                binding.controlsContainer.paddingRight,
+                binding.controlsContainer.paddingBottom + systemBars.bottom
+            )
         }
 
         initializeTransitionLayout()

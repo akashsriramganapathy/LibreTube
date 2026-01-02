@@ -29,7 +29,43 @@
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toTopOf="parent" />
-
+        <Constraint
+            android:id="@+id/header_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            motion:layout_constraintTop_toTopOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent" />
+        <Constraint
+            android:id="@+id/controls_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent" />
+        <Constraint
+            android:id="@+id/artwork_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            motion:layout_constraintTop_toBottomOf="@id/header_container"
+            motion:layout_constraintBottom_toTopOf="@id/controls_container"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintEnd_toEndOf="parent" />
+        <Constraint
+            android:id="@+id/video_player_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            android:alpha="1"
+            motion:layout_constraintTop_toTopOf="@id/artwork_container"
+            motion:layout_constraintBottom_toBottomOf="@id/artwork_container"
+            motion:layout_constraintStart_toStartOf="@id/artwork_container"
+            motion:layout_constraintEnd_toEndOf="@id/artwork_container">
+            <!-- Ensure margins from fragment_audio_player.xml are respected if needed, or overridden here -->
+            <Layout
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginVertical="10dp" />
+        </Constraint>
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -44,13 +80,25 @@
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintVertical_bias="1.0" />
         <Constraint
-            android:id="@+id/audio_player_main"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            motion:layout_constraintBottom_toBottomOf="parent"
-            motion:layout_constraintEnd_toEndOf="parent"
-            motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintTop_toBottomOf="@+id/main_container" />
+            android:id="@+id/header_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            motion:layout_constraintBottom_toTopOf="parent" />
+        <Constraint
+            android:id="@+id/controls_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            motion:layout_constraintTop_toBottomOf="parent" />
+        <Constraint
+            android:id="@+id/artwork_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:alpha="0"
+            motion:layout_constraintTop_toBottomOf="@id/header_container"
+            motion:layout_constraintBottom_toTopOf="@id/controls_container" />
+
         <Constraint
             android:id="@+id/miniPlayerControls"
             android:layout_width="match_parent"
@@ -62,6 +110,16 @@
             motion:layout_constraintEnd_toEndOf="@id/audio_player_container"
             motion:layout_constraintStart_toStartOf="@id/audio_player_container"
             motion:layout_constraintTop_toTopOf="@+id/audio_player_container" />
-
+        
+        <Constraint
+            android:id="@+id/video_player_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="visible"
+            android:alpha="1"
+            motion:layout_constraintTop_toTopOf="@id/miniPlayerThumbnail"
+            motion:layout_constraintBottom_toBottomOf="@id/miniPlayerThumbnail"
+            motion:layout_constraintStart_toStartOf="@id/miniPlayerThumbnail"
+            motion:layout_constraintEnd_toEndOf="@id/miniPlayerThumbnail" />
     </ConstraintSet>
 </MotionScene>
