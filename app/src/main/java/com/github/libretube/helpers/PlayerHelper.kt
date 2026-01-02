@@ -337,23 +337,7 @@ object PlayerHelper {
             true
         )
 
-    val disablePipedProxy: Boolean
-        get() = PreferenceHelper.getBoolean(
-            PreferenceKeys.DISABLE_VIDEO_IMAGE_PROXY,
-            false
-        )
 
-    val fullLocalMode: Boolean
-        get() = PreferenceHelper.getBoolean(
-            PreferenceKeys.FULL_LOCAL_MODE,
-            false
-        )
-
-    val localStreamExtraction: Boolean
-        get() = PreferenceHelper.getBoolean(
-            PreferenceKeys.LOCAL_STREAM_EXTRACTION,
-            true
-        )
 
     val localRYD: Boolean
         get() = PreferenceHelper.getBoolean(

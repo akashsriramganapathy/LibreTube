@@ -64,7 +64,7 @@ object BackupHelper {
         Database.searchHistoryDao().insertAll(backupFile.searchHistory.orEmpty())
         Database.watchPositionDao().insertAll(backupFile.watchPositions.orEmpty())
         Database.localSubscriptionDao().insertAll(backupFile.subscriptions.orEmpty())
-        Database.customInstanceDao().insertAll(backupFile.customInstances.orEmpty())
+
         Database.playlistBookmarkDao().insertAll(backupFile.playlistBookmarks.orEmpty())
         Database.subscriptionGroupsDao().insertAll(backupFile.groups.orEmpty())
 

@@ -9,12 +9,7 @@
         app:key="general"
         app:title="@string/general" />
 
-    <Preference
-        android:icon="@drawable/ic_server"
-        app:fragment="com.github.libretube.ui.preferences.InstanceSettings"
-        app:key="instance"
-        app:summary="@string/instance_summary"
-        app:title="@string/instance" />
+
 
     <Preference
         android:icon="@drawable/ic_color"

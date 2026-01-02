@@ -1,9 +1,9 @@
 package com.github.libretube.obj
 
-import com.github.libretube.db.obj.CustomInstance
+
 import com.github.libretube.db.obj.LocalPlaylistWithVideos
 import com.github.libretube.db.obj.LocalSubscription
-import com.github.libretube.db.obj.PlaylistBookmark
+
 import com.github.libretube.db.obj.SearchHistoryItem
 import com.github.libretube.db.obj.SubscriptionGroup
 import com.github.libretube.db.obj.WatchHistoryItem
@@ -27,7 +27,7 @@ data class BackupFile(
     var watchHistory: List<WatchHistoryItem>? = emptyList(),
     var watchPositions: List<WatchPosition>? = emptyList(),
     var searchHistory: List<SearchHistoryItem>? = emptyList(),
-    var customInstances: List<CustomInstance>? = emptyList(),
+
     var playlistBookmarks: List<PlaylistBookmark>? = emptyList(),
 
     //
@@ -46,5 +46,5 @@ data class BackupFile(
 
     // playlists are exported in two different formats because the formats differ too much unfortunately
     var localPlaylists: List<LocalPlaylistWithVideos>? = emptyList(),
-    var playlists: List<PipedImportPlaylist>? = emptyList()
+
 )

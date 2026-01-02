@@ -66,6 +66,7 @@ object DatabaseHolder {
                 MIGRATION_15_16,
                 MIGRATION_17_18
             )
+            .fallbackToDestructiveMigration()
             .build()
     }
 }

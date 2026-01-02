@@ -4,7 +4,7 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.github.libretube.db.dao.CustomInstanceDao
+
 import com.github.libretube.db.dao.DownloadDao
 import com.github.libretube.db.dao.LocalPlaylistsDao
 import com.github.libretube.db.dao.LocalSubscriptionDao
@@ -14,7 +14,7 @@ import com.github.libretube.db.dao.SubscriptionGroupsDao
 import com.github.libretube.db.dao.SubscriptionsFeedDao
 import com.github.libretube.db.dao.WatchHistoryDao
 import com.github.libretube.db.dao.WatchPositionDao
-import com.github.libretube.db.obj.CustomInstance
+
 import com.github.libretube.db.obj.Download
 import com.github.libretube.db.obj.DownloadChapter
 import com.github.libretube.db.obj.DownloadItem
@@ -35,7 +35,7 @@ import com.github.libretube.db.obj.WatchPosition
         WatchHistoryItem::class,
         WatchPosition::class,
         SearchHistoryItem::class,
-        CustomInstance::class,
+
         LocalSubscription::class,
         PlaylistBookmark::class,
         LocalPlaylist::class,
@@ -77,10 +77,7 @@ abstract class AppDatabase : RoomDatabase() {
      */
     abstract fun searchHistoryDao(): SearchHistoryDao
 
-    /**
-     * Custom Instances
-     */
-    abstract fun customInstanceDao(): CustomInstanceDao
+
 
     /**
      * Local Subscriptions
