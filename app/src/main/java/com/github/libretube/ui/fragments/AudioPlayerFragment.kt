@@ -15,6 +15,7 @@ import androidx.activity.BackEventCompat
 import androidx.activity.OnBackPressedCallback
 import androidx.constraintlayout.motion.widget.MotionLayout
 import androidx.constraintlayout.motion.widget.TransitionAdapter
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.math.MathUtils.clamp
 import androidx.core.os.bundleOf
 import androidx.core.view.isGone
@@ -363,32 +364,68 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
     private var isInlineVideoEnabled = false
     
     private fun toggleInlineVideo() {
-        Log.d(TAG(), "toggleInlineVideo: Switching video mode. Current state inlineEnabled=$isInlineVideoEnabled")
+        Log.d(TAG(), "toggleInlineVideo: Switching video mode. START state inlineEnabled=$isInlineVideoEnabled")
         val player = playerController ?: return
         
         isInlineVideoEnabled = !isInlineVideoEnabled
         
+        val motionLayout = binding.playerMotionLayout
+        val startConstraintSet = motionLayout.getConstraintSet(R.id.start)
+        
         if (isInlineVideoEnabled) {
+            Log.d(TAG(), "toggleInlineVideo: Enabling video. Hiding thumbnail, Showing videoView.")
+            
+            // Update View properties directly
             binding.thumbnail.isGone = true
             binding.videoPlayerView.isVisible = true
+            binding.videoPlayerView.alpha = 1.0f
             binding.videoPlayerView.player = player
             binding.toggleVideo.setIconResource(R.drawable.ic_image)
+            
+            // Update ConstraintSet to ensure MotionLayout respects it
+            startConstraintSet?.setVisibility(R.id.thumbnail, View.GONE)
+            startConstraintSet?.setVisibility(R.id.video_player_view, View.VISIBLE)
+            startConstraintSet?.setAlpha(R.id.video_player_view, 1.0f)
             
             player.sendCustomCommand(
                 AbstractPlayerService.runPlayerActionCommand,
                 bundleOf(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name to false)
             )
         } else {
+            Log.d(TAG(), "toggleInlineVideo: Disabling video. Showing thumbnail, Hiding videoView.")
+            
+            // Update View properties directly
             binding.videoPlayerView.player = null
             binding.videoPlayerView.isGone = true
+            binding.videoPlayerView.alpha = 0.0f // Force hiding
             binding.thumbnail.isVisible = true
+            binding.thumbnail.alpha = 1.0f
             binding.toggleVideo.setIconResource(R.drawable.ic_movie)
+            
+            // Update ConstraintSet
+            startConstraintSet?.setVisibility(R.id.thumbnail, View.VISIBLE)
+            startConstraintSet?.setAlpha(R.id.thumbnail, 1.0f)
+            startConstraintSet?.setVisibility(R.id.video_player_view, View.GONE)
+            startConstraintSet?.setAlpha(R.id.video_player_view, 0.0f)
             
             player.sendCustomCommand(
                 AbstractPlayerService.runPlayerActionCommand,
                 bundleOf(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name to true)
             )
         }
+        
+        // Apply updates to the MotionLayout
+        // Note: We use updateState because we are modifying the ConstraintSet in place
+        // and want it to reflect immediately if we are in that state.
+        if (startConstraintSet != null) {
+            motionLayout.updateState(R.id.start, startConstraintSet)
+            // If we are currently in start state, request layout to apply
+            if (motionLayout.currentState == R.id.start) {
+                 motionLayout.requestLayout()
+            }
+        }
+        
+        Log.d(TAG(), "toggleInlineVideo: END. thumbVis=${binding.thumbnail.visibility}, vidVis=${binding.videoPlayerView.visibility}")
     }
 
     fun playNextVideo(videoId: String) {
