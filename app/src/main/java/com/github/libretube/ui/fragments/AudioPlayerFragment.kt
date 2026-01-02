@@ -362,7 +362,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
     private var isInlineVideoEnabled = false
     
     private fun toggleInlineVideo() {
-        Log.d(TAG(), "toggleInlineVideo: Switching video mode. Current state inlineEnabled=\$isInlineVideoEnabled")
+        Log.d(TAG(), "toggleInlineVideo: Switching video mode. Current state inlineEnabled=$isInlineVideoEnabled")
         val player = playerController ?: return
         
         isInlineVideoEnabled = !isInlineVideoEnabled
@@ -476,7 +476,13 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
             val bitmap = ImageHelper.getImage(requireContext(), thumbnailUri)
             binding.thumbnail.setImageBitmap(bitmap)
             binding.miniPlayerThumbnail.setImageBitmap(bitmap)
-            binding.thumbnail.isVisible = true
+            
+            // Only show thumbnail if inline video is NOT enabled
+            if (!isInlineVideoEnabled) {
+                binding.thumbnail.isVisible = true
+            } else {
+                 Log.d(TAG(), "updateThumbnailAsync: Kept thumbnail hidden because inline video is enabled")
+            }
             binding.progress.isGone = true
         }
     }

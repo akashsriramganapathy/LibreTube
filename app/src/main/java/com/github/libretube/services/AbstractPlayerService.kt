@@ -178,7 +178,7 @@ abstract class AbstractPlayerService : MediaLibraryService(), MediaLibrarySessio
             }
 
             args.containsKey(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name) -> {
-                Log.d("AbstractPlayerService", "Received TOGGLE_AUDIO_ONLY_MODE: \${args.getBoolean(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name)}")
+                Log.d("AbstractPlayerService", "Received TOGGLE_AUDIO_ONLY_MODE: ${args.getBoolean(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name)}")
                 isAudioOnlyPlayer = args.getBoolean(PlayerCommand.TOGGLE_AUDIO_ONLY_MODE.name)
                 trackSelector?.updateParameters {
                     setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, isAudioOnlyPlayer)
