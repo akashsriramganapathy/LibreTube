@@ -8,6 +8,10 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.getSystemService
+import android.content.ComponentName
+import android.content.Context
+import android.content.ServiceConnection
+import android.os.IBinder
 import androidx.lifecycle.LifecycleService
 import androidx.lifecycle.lifecycleScope
 import com.github.libretube.LibreTubeApp.Companion.PLAYLIST_DOWNLOAD_ENQUEUE_CHANNEL_NAME
@@ -31,12 +35,27 @@ import com.github.libretube.helpers.ImageHelper
 import com.github.libretube.parcelable.DownloadData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import java.nio.file.Path
 import kotlin.io.path.div
 
 class PlaylistDownloadEnqueueService : LifecycleService() {
     private lateinit var nManager: NotificationManager
+    
+    // Bind to DownloadService to keep it alive during enqueueing
+    private var downloadService: DownloadService? = null
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as? DownloadService.LocalBinder
+            downloadService = binder?.getService()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            downloadService = null
+        }
+    }
 
     private lateinit var playlistId: String
     private lateinit var playlistType: PlaylistType
@@ -50,6 +69,8 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
+        
+        nManager = getSystemService()!!
 
         ServiceCompat.startForeground(
             this,
@@ -61,12 +82,20 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
                 0
             }
         )
+        
+        // Bind to DownloadService
+        bindService(Intent(this, DownloadService::class.java), serviceConnection, Context.BIND_AUTO_CREATE)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent == null) return START_NOT_STICKY
         
-        nManager = getSystemService()!!
+        try {
+            nManager = getSystemService()!!
+        } catch (e: Exception) {
+             e.printStackTrace()
+             return START_NOT_STICKY
+        }
 
         playlistId = intent.getStringExtra(IntentData.playlistId) ?: return START_NOT_STICKY
         playlistName = intent.getStringExtra(IntentData.playlistName) ?: return START_NOT_STICKY
@@ -172,10 +201,27 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
     private suspend fun enqueueStreams(playlistId: String, streams: List<StreamItem>) {
         nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
 
-        for (stream in streams) {
+        // Process streams in parallel chunks to speed up metadata fetching
+        streams.chunked(5).forEach { batch -> // Process 5 videos concurrently
+            val deferreds = batch.map { stream ->
+                CoroutineScope(Dispatchers.IO).async {
+                    processSingleStream(stream, playlistId)
+                }
+            }
+            deferreds.awaitAll()
+            
+            // Notify progress after each batch
+            nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
+        }
+
+        if (amountOfVideos == amountOfVideosDone) stopSelf()
+    }
+    
+    private suspend fun processSingleStream(stream: StreamItem, playlistId: String) {
+        try {
             val videoId = stream.url!!.toID()
 
-            // link the playlist to the video, so that we can later query all videos contained in the playlist
+            // link the playlist to the video
             DatabaseHolder.Database.downloadDao().insertPlaylistVideoConnection(
                 DownloadPlaylistVideosCrossRef(
                     videoId = videoId,
@@ -187,7 +233,7 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
             if (!DatabaseHolder.Database.downloadDao().exists(videoId)) {
                 val videoInfo = runCatching {
                     MediaServiceRepository.instance.getStreams(videoId)
-                }.getOrNull() ?: continue
+                }.getOrNull() ?: return
 
                 val videoStream = getStream(videoInfo.videoStreams, maxVideoQuality)
                 val audioStream = getStream(videoInfo.audioStreams, maxAudioQuality)
@@ -202,18 +248,20 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
                         videoInfo.audioStreams.any { it.audioTrackLocale == audioLanguage }
                     },
                     subtitleCode = captionLanguage.takeIf {
-                        videoInfo.subtitles.any { it.code == captionLanguage }
+                         videoInfo.subtitles.any { it.code == captionLanguage }
                     }
                 )
-                DownloadHelper.startDownloadService(this, downloadData)
+                
+                // Directly use the bound service if available, effectively keeping it alive
+                // But DownloadHelper.startDownloadService handles startIntent
+                DownloadHelper.startDownloadService(this@PlaylistDownloadEnqueueService, downloadData)
             }
-            // TODO: inform the user if an already downloaded video has been skipped
-
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Continue processing other videos even if one fails
+        } finally {
             amountOfVideosDone++
-            nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
         }
-
-        if (amountOfVideos == amountOfVideosDone) stopSelf()
     }
 
     private fun getStream(streams: List<PipedStream>, maxQuality: Int?): PipedStream? {
@@ -237,6 +285,11 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
 
     override fun onDestroy() {
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        try {
+            unbindService(serviceConnection)
+        } catch (e: Exception) {
+            // Ignore if not bound
+        }
         stopSelf()
 
         super.onDestroy()

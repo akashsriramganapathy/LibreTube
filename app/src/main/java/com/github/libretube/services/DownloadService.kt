@@ -135,7 +135,13 @@ class DownloadService : LifecycleService() {
                 }
             }
         }
-        connectivityManager?.registerDefaultNetworkCallback(networkCallback!!)
+        try {
+            connectivityManager?.registerDefaultNetworkCallback(networkCallback!!)
+        } catch (e: Exception) {
+            // This can happen if the app registers too many callbacks (limit is 100)
+            networkCallback = null
+            Log.e(TAG(), "Failed to register network callback: ${e.message}")
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
