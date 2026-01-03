@@ -46,9 +46,10 @@ import com.github.libretube.db.obj.WatchPosition
         DownloadPlaylist::class,
         DownloadPlaylistVideosCrossRef::class,
         SubscriptionGroup::class,
-        SubscriptionsFeedItem::class
+        SubscriptionsFeedItem::class,
+        com.github.libretube.db.obj.AppSetting::class
     ],
-    version = 22,
+    version = 23,
     autoMigrations = [
         AutoMigration(from = 7, to = 8),
         AutoMigration(from = 8, to = 9),
@@ -62,7 +63,8 @@ import com.github.libretube.db.obj.WatchPosition
             from = 21,
             to = 22,
             spec = AppDatabase.DeleteCustomInstancesSpec::class
-        )
+        ),
+        AutoMigration(from = 22, to = 23)
     ]
 )
 @TypeConverters(Converters::class)
@@ -115,4 +117,9 @@ abstract class AppDatabase : RoomDatabase() {
      * Locally cached subscription feed
      */
     abstract fun feedDao(): SubscriptionsFeedDao
+
+    /**
+     * App Settings
+     */
+    abstract fun appSettingsDao(): com.github.libretube.db.dao.AppSettingsDao
 }

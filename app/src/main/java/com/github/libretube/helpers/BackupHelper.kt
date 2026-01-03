@@ -87,42 +87,39 @@ object BackupHelper {
     private fun restorePreferences(context: Context, preferences: List<PreferenceItem>?) {
         if (preferences == null) return
 
-        PreferenceManager.getDefaultSharedPreferences(context).edit(commit = true) {
-            // clear the previous settings
-            clear()
+        PreferenceHelper.clearPreferences()
 
-            // decide for each preference which type it is and save it to the preferences
-            preferences.forEach { (key, jsonValue) ->
-                val value = if (jsonValue.isString) {
-                    jsonValue.content
-                } else {
-                    jsonValue.booleanOrNull
-                        ?: jsonValue.intOrNull
-                        ?: jsonValue.longOrNull
-                        ?: jsonValue.floatOrNull
-                }
-                when (value) {
-                    is Boolean -> putBoolean(key, value)
-                    is Float -> putFloat(key, value)
-                    is Long -> putLong(key, value)
-                    is Int -> {
-                        // we only use integers for SponsorBlock colors and the start fragment
-                        if (key == PreferenceKeys.START_FRAGMENT || "_color" in key.orEmpty()) {
-                            putInt(key, value)
-                        } else {
-                            putLong(key, value.toLong())
-                        }
+        // decide for each preference which type it is and save it to the preferences
+        preferences.forEach { (key, jsonValue) ->
+            val value = if (jsonValue.isString) {
+                jsonValue.content
+            } else {
+                jsonValue.booleanOrNull
+                    ?: jsonValue.intOrNull
+                    ?: jsonValue.longOrNull
+                    ?: jsonValue.floatOrNull
+            }
+            when (value) {
+                is Boolean -> PreferenceHelper.putBoolean(key, value)
+                is Float -> PreferenceHelper.putFloat(key, value)
+                is Long -> PreferenceHelper.putLong(key, value)
+                is Int -> {
+                    // we only use integers for SponsorBlock colors and the start fragment
+                    if (key == PreferenceKeys.START_FRAGMENT || "_color" in key.orEmpty()) {
+                        PreferenceHelper.putInt(key, value)
+                    } else {
+                        PreferenceHelper.putLong(key, value.toLong())
                     }
+                }
 
-                    is String -> {
-                        if (
-                            key == PreferenceKeys.HOME_TAB_CONTENT ||
-                            key == PreferenceKeys.SELECTED_FEED_FILTERS
-                        ) {
-                            putStringSet(key, value.split(",").toSet())
-                        } else {
-                            putString(key, value)
-                        }
+                is String -> {
+                    if (
+                        key == PreferenceKeys.HOME_TAB_CONTENT ||
+                        key == PreferenceKeys.SELECTED_FEED_FILTERS
+                    ) {
+                        PreferenceHelper.putStringSet(key, value.split(",").toSet())
+                    } else {
+                        PreferenceHelper.putString(key, value)
                     }
                 }
             }

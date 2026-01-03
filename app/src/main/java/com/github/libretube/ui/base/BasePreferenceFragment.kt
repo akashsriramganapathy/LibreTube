@@ -9,6 +9,7 @@ import androidx.preference.ListPreference
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.github.libretube.helpers.RoomPreferenceDataStore
 import com.github.libretube.R
 import com.github.libretube.databinding.DialogTextPreferenceBinding
 import com.github.libretube.ui.activities.SettingsActivity
@@ -20,7 +21,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
  * PreferenceFragmentCompat using the [MaterialAlertDialogBuilder] instead of the old dialog builder
  */
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
-    abstract val titleResourceId: Int
+    override fun onCreate(savedInstanceState: Bundle?) {
+        preferenceManager.preferenceDataStore = RoomPreferenceDataStore
+        super.onCreate(savedInstanceState)
+    }
 
     private val settingsActivity get() = activity as? SettingsActivity
 

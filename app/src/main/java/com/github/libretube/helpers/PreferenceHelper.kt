@@ -25,7 +25,10 @@ object PreferenceHelper {
     /**
      * for normal preferences
      */
-    lateinit var settings: SharedPreferences
+    /**
+     * DataStore for preferences
+     */
+    val dataStore = RoomPreferenceDataStore
 
     /**
      * For sensitive data (like token)
@@ -141,7 +144,26 @@ object PreferenceHelper {
      * set the context that is being used to access the shared preferences
      */
     fun initialize(context: Context) {
-        settings = getDefaultSharedPreferences(context)
+        dataStore.initialize()
+        
+        // One-time migration: Import SharedPreferences to DB if DB is empty
+        val sp = getDefaultSharedPreferences(context)
+        if (dataStore.getAll().isEmpty() && sp.all.isNotEmpty()) {
+            Log.d(TAG, "Migrating SharedPreferences to Database...")
+            sp.all.forEach { (key, value) ->
+                when (value) {
+                    is String -> putString(key, value)
+                    is Boolean -> putBoolean(key, value)
+                    is Int -> putInt(key, value)
+                    is Long -> putLong(key, value)
+                    is Float -> putFloat(key, value)
+                    is Set<*> -> putStringSet(key, value as Set<String>)
+                }
+            }
+            // Clear SP after migration? Maybe safer to keep as backup for now or clear later.
+             sp.edit { clear() }
+        }
+
         authSettings = getAuthenticationPreferences(context)
     }
 
@@ -167,53 +189,59 @@ object PreferenceHelper {
     }
 
     fun putString(key: String, value: String) {
-        settings.edit(commit = true) { putString(key, value) }
+        dataStore.putString(key, value)
     }
 
     fun putBoolean(key: String, value: Boolean) {
-        settings.edit(commit = true) { putBoolean(key, value) }
+        dataStore.putBoolean(key, value)
     }
 
     fun putInt(key: String, value: Int) {
-        settings.edit(commit = true) { putInt(key, value) }
+        dataStore.putInt(key, value)
     }
 
     fun putLong(key: String, value: Long) {
-        settings.edit(commit = true) { putLong(key, value) }
+        dataStore.putLong(key, value)
+    }
+
+    fun putFloat(key: String, value: Float) {
+        dataStore.putFloat(key, value)
     }
 
     fun putStringSet(key: String, value: Set<String>) {
-        settings.edit(commit = true) { putStringSet(key, value) }
+        dataStore.putStringSet(key, value)
     }
 
     fun remove(key: String) {
-        settings.edit(commit = true) { remove(key) }
+        dataStore.putString(key, null)
     }
 
     fun getString(key: String?, defValue: String): String {
-        return settings.getString(key, defValue) ?: defValue
+        return dataStore.getString(key ?: "", defValue) ?: defValue
     }
 
     fun getBoolean(key: String?, defValue: Boolean): Boolean {
-        return settings.getBoolean(key, defValue)
+        return dataStore.getBoolean(key ?: "", defValue)
     }
 
     fun getInt(key: String?, defValue: Int): Int {
-        return runCatching {
-            settings.getInt(key, defValue)
-        }.getOrElse { settings.getLong(key, defValue.toLong()).toInt() }
+        return dataStore.getInt(key ?: "", defValue)
     }
 
     fun getLong(key: String?, defValue: Long): Long {
-        return settings.getLong(key, defValue)
+        return dataStore.getLong(key ?: "", defValue)
+    }
+
+    fun getFloat(key: String?, defValue: Float): Float {
+        return dataStore.getFloat(key ?: "", defValue)
     }
 
     fun getStringSet(key: String?, defValue: Set<String>): Set<String> {
-        return settings.getStringSet(key, defValue).orEmpty()
+        return dataStore.getStringSet(key ?: "", defValue) ?: emptySet()
     }
 
     fun clearPreferences() {
-        settings.edit { clear() }
+        dataStore.clear()
     }
 
     fun getToken(): String {
@@ -275,10 +303,8 @@ object PreferenceHelper {
         } else {
             ignorableChannels.add(channelId)
         }
-        settings.edit {
-            val channelsString = ignorableChannels.joinToString(",")
-            putString(PreferenceKeys.IGNORED_NOTIFICATION_CHANNELS, channelsString)
-        }
+        val channelsString = ignorableChannels.joinToString(",")
+        putString(PreferenceKeys.IGNORED_NOTIFICATION_CHANNELS, channelsString)
     }
 
     fun getSponsorBlockUserID(): String {

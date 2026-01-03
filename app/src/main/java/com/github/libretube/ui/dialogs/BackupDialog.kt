@@ -59,13 +59,13 @@ class BackupDialog : DialogFragment() {
         })
 
         data object Preferences : BackupOption(R.string.preferences, onSelected = { file ->
-            file.preferences = PreferenceHelper.settings.all.map { (key, value) ->
-                val jsonValue = when (value) {
-                    is Number -> JsonPrimitive(value)
-                    is Boolean -> JsonPrimitive(value)
-                    is String -> JsonPrimitive(value)
-                    is Set<*> -> JsonPrimitive(value.joinToString(","))
-                    else -> JsonNull
+            file.preferences = PreferenceHelper.dataStore.getAll().map { (key, value) ->
+                val jsonValue = when {
+                    value.equals("true", ignoreCase = true) || value.equals("false", ignoreCase = true) -> JsonPrimitive(value.toBoolean())
+                    value.toIntOrNull() != null -> JsonPrimitive(value.toInt())
+                    value.toLongOrNull() != null -> JsonPrimitive(value.toLong())
+                    value.toFloatOrNull() != null -> JsonPrimitive(value.toFloat())
+                    else -> JsonPrimitive(value)
                 }
                 PreferenceItem(key, jsonValue)
             }
