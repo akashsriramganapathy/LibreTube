@@ -23,6 +23,7 @@ class GeneralSettings : BasePreferenceFragment() {
     override val titleResourceId: Int = R.string.general
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.general_settings, rootKey)
 
         val language = findPreference<ListPreference>("language")

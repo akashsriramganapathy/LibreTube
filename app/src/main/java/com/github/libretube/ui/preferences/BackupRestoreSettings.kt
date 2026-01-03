@@ -124,6 +124,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
         }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.import_export_settings, rootKey)
 
         val importSubscriptions = findPreference<Preference>("import_subscriptions")

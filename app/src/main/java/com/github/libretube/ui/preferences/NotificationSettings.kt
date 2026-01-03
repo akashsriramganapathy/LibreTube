@@ -13,6 +13,7 @@ class NotificationSettings : BasePreferenceFragment() {
     override val titleResourceId: Int = R.string.notifications
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.notification_settings, rootKey)
 
         val notificationsEnabled =

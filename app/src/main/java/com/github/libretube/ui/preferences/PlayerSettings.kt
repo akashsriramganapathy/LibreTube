@@ -18,6 +18,7 @@ class PlayerSettings : BasePreferenceFragment() {
     override val titleResourceId: Int = R.string.player
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.player_settings, rootKey)
 
         val defaultSubtitle = findPreference<ListPreference>(PreferenceKeys.DEFAULT_SUBTITLE)

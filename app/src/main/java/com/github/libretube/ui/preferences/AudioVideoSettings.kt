@@ -8,6 +8,7 @@ class AudioVideoSettings : BasePreferenceFragment() {
     override val titleResourceId: Int = R.string.audio_video
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.audio_video_settings, rootKey)
     }
 }

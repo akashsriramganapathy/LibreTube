@@ -17,6 +17,7 @@ import com.google.android.material.color.DynamicColors
 class AppearanceSettings : BasePreferenceFragment() {
     override val titleResourceId: Int = R.string.appearance
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.appearance_settings, rootKey)
 
         val themeToggle = findPreference<ListPreference>(PreferenceKeys.THEME_MODE)

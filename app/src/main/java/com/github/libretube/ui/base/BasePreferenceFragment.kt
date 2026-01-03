@@ -23,9 +23,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 abstract class BasePreferenceFragment : PreferenceFragmentCompat() {
     abstract val titleResourceId: Int
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = RoomPreferenceDataStore
-        super.onCreate(savedInstanceState)
     }
 
     private val settingsActivity get() = activity as? SettingsActivity

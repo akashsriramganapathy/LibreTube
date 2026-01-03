@@ -8,6 +8,7 @@ class SponsorBlockSettings : BasePreferenceFragment() {
     override val titleResourceId: Int = R.string.sponsorblock
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.sponsorblock_settings, rootKey)
     }
 }
