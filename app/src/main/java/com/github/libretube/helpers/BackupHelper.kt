@@ -130,8 +130,34 @@ object BackupHelper {
         PreferenceHelper.clearPreferences()
 
         // decide for each preference which type it is and save it to the preferences
+        val ignoredKeys = listOf(
+            PreferenceKeys.GRID_COLUMNS_PORTRAIT,
+            PreferenceKeys.GRID_COLUMNS_LANDSCAPE,
+            PreferenceKeys.DEFAULT_RESOLUTION,
+            PreferenceKeys.DEFAULT_RESOLUTION_MOBILE,
+            PreferenceKeys.PLAYER_AUDIO_QUALITY,
+            PreferenceKeys.PLAYER_AUDIO_QUALITY_MOBILE,
+            PreferenceKeys.NOTIFICATION_ENABLED,
+            PreferenceKeys.SHOW_STREAM_THUMBNAILS,
+            PreferenceKeys.SHORTS_NOTIFICATIONS,
+            PreferenceKeys.CHECKING_FREQUENCY,
+            PreferenceKeys.REQUIRED_NETWORK,
+            PreferenceKeys.IGNORED_NOTIFICATION_CHANNELS,
+            PreferenceKeys.NOTIFICATION_TIME_ENABLED,
+            PreferenceKeys.NOTIFICATION_START_TIME,
+            PreferenceKeys.NOTIFICATION_END_TIME,
+            PreferenceKeys.MAX_CONCURRENT_DOWNLOADS,
+            PreferenceKeys.DOUBLE_TAP_TO_SEEK,
+            // we want to ensure autoplay playlists is TRUE, so if the backup has it as FALSE, we might want to ignore it 
+            // OR we let the XML default take over if we clear it. 
+            // But restorePreferences CLEARS all preferences first. 
+            // So if we ignore it, it won't be set, and when the app reads it, it will use the default.
+            // The default I set in XML is TRUE. So ignoring it is correct if we want to enforce the new default.
+            PreferenceKeys.AUTOPLAY_PLAYLISTS, 
+        )
+
         preferences.forEach { (key, jsonValue) ->
-            if (key == null) return@forEach
+            if (key == null || ignoredKeys.contains(key)) return@forEach
 
             val value = if (jsonValue.isString) {
                 jsonValue.content

@@ -616,7 +616,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
     }
 
     override fun onSingleTap() {
-        playerController?.togglePlayPauseState()
+        // do nothing
     }
 
     override fun onLongTap() {

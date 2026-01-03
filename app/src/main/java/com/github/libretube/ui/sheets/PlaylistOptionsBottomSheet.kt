@@ -85,10 +85,15 @@ class PlaylistOptionsBottomSheet : BaseBottomSheet() {
                     }
 
                     playlist.relatedStreams.firstOrNull()?.let {
+                        PlayingQueue.setStreams(playlist.relatedStreams)
                         BackgroundHelper.playOnBackground(
                             requireContext(),
                             it.url!!.toID(),
                             playlistId = playlistId
+                        )
+                        NavigationHelper.openAudioPlayerFragment(
+                            requireContext(),
+                            minimizeByDefault = true
                         )
                     }
                 }
