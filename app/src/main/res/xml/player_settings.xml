@@ -2,85 +2,9 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="@string/gestures">
-
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:icon="@drawable/ic_swipe_gesture"
-            android:summary="@string/swipe_controls_summary"
-            app:key="player_swipe_controls"
-            app:title="@string/swipe_controls" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/ic_fullscreen"
-            app:key="fullscreen_gestures"
-            app:title="@string/fullscreen_gestures" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="true"
-            android:icon="@drawable/ic_pinch_gesture"
-            android:summary="@string/pinch_control_summary"
-            app:key="player_pinch_control"
-            app:title="@string/pinch_control" />
 
 
 
-    </PreferenceCategory>
-
-    <PreferenceCategory app:title="@string/behavior">
-
-        <com.github.libretube.ui.views.SliderPreference
-            android:icon="@drawable/ic_skip"
-            app:defValue="10.0"
-            app:key="seek_increment"
-            app:stepSize="5.0"
-            app:title="@string/seek_increment"
-            app:valueFrom="5.0"
-            app:valueTo="60.0" />
-
-        <SwitchPreferenceCompat
-            android:defaultValue="false"
-            android:icon="@drawable/ic_next"
-            android:summary="@string/skip_buttons_summary"
-            app:key="skip_buttons"
-            app:title="@string/skip_buttons" />
-
-        <ListPreference
-            android:defaultValue="pip"
-            android:icon="@drawable/ic_window"
-            app:entries="@array/onMinimize"
-            app:entryValues="@array/onMinimizeValues"
-            app:key="behavior_when_minimized"
-            app:title="@string/behavior_when_minimized"
-            app:useSimpleSummaryProvider="true" />
-
-        <SwitchPreferenceCompat
-            android:disableDependentsState="true"
-            android:icon="@drawable/ic_rotating_circle"
-            android:summary="@string/autoRotatePlayer_summary"
-            app:defaultValue="false"
-            app:key="auto_fullscreen"
-            app:title="@string/autoRotatePlayer" />
-
-        <ListPreference
-            android:dependency="auto_fullscreen"
-            android:icon="@drawable/ic_flip"
-            app:defaultValue="ratio"
-            app:entries="@array/fullscreenOrientation"
-            app:entryValues="@array/fullscreenOrientationValues"
-            app:key="fullscreen_orientation"
-            app:title="@string/fullscreen_orientation"
-            app:useSimpleSummaryProvider="true" />
-
-        <SwitchPreferenceCompat
-            android:icon="@drawable/ic_speed"
-            android:summary="@string/autoplay_countdown_summary"
-            app:defaultValue="false"
-            app:key="autoplay_countdown"
-            app:title="@string/autoplay_countdown" />
-
-    </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/captions">
 

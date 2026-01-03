@@ -33,13 +33,6 @@
         app:title="@string/player" />
 
     <Preference
-        android:icon="@drawable/ic_movie"
-        app:fragment="com.github.libretube.ui.preferences.AudioVideoSettings"
-        app:key="audio_video"
-        app:summary="@string/audio_video_summary"
-        app:title="@string/audio_video" />
-
-    <Preference
         android:icon="@drawable/ic_history_filled"
         app:fragment="com.github.libretube.ui.preferences.HistorySettings"
         android:summary="@string/history_summary"

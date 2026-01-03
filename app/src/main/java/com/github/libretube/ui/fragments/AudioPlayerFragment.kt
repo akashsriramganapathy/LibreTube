@@ -48,6 +48,11 @@ import com.github.libretube.extensions.seekBy
 import com.github.libretube.extensions.toID
 import com.github.libretube.extensions.togglePlayPauseState
 import com.github.libretube.extensions.updateIfChanged
+import com.github.libretube.api.obj.Streams
+import com.github.libretube.util.StoryboardHelper
+import com.github.libretube.util.StoryboardTransformation
+import coil3.request.ImageRequest
+import coil3.BitmapImage
 import com.github.libretube.helpers.AudioHelper
 import com.github.libretube.helpers.BackgroundHelper
 import com.github.libretube.helpers.ClipboardHelper
@@ -517,6 +522,37 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
 
         lifecycleScope.launch {
             val binding = _binding ?: return@launch
+            
+            // Progressive Loading for DeArrow
+            if (thumbnailUri.toString().contains("dearrow")) {
+                val time = thumbnailUri.getQueryParameter("time")?.toFloatOrNull()
+                // Retrieve streams from playerController metadata if available
+                val streamsJson = playerController?.mediaMetadata?.extras?.getString(IntentData.streams)
+                if (time != null && streamsJson != null) {
+                    val streams = JsonHelper.json.decodeFromString<Streams>(streamsJson)
+                    val sbParams = StoryboardHelper.getStoryboardUrlAndCrop(streams.previewFrames, time)
+                    
+                    if (sbParams != null) {
+                        val (url, rect) = sbParams
+                        val request = coil3.request.ImageRequest.Builder(requireContext())
+                            .data(url)
+                            .transformations(StoryboardTransformation(rect))
+                            .size(rect.width(), rect.height())
+                            .build()
+                            
+                        val result = ImageHelper.imageLoader(requireContext()).execute(request)
+                        val placeholderBitmap = (result.image as? coil3.BitmapImage)?.bitmap
+                        
+                        if (placeholderBitmap != null) {
+                            binding.thumbnail.setImageBitmap(placeholderBitmap)
+                            binding.miniPlayerThumbnail.setImageBitmap(placeholderBitmap)
+                            binding.thumbnail.isVisible = !isInlineVideoEnabled
+                            binding.progress.isVisible = false // Hide progress while waiting for high-res
+                        }
+                    }
+                }
+            }
+
             val bitmap = ImageHelper.getImage(requireContext(), thumbnailUri)
             binding.thumbnail.setImageBitmap(bitmap)
             binding.miniPlayerThumbnail.setImageBitmap(bitmap)

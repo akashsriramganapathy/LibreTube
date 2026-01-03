@@ -4,35 +4,7 @@
 
     <PreferenceCategory>
 
-        <ListPreference
-            android:icon="@drawable/ic_theme"
-            app:defaultValue="A"
-            app:entries="@array/themes"
-            app:entryValues="@array/themesValue"
-            app:key="theme_toggle"
-            app:title="@string/app_theme"
-            app:useSimpleSummaryProvider="true" />
-
-        <SwitchPreferenceCompat
-            android:icon="@drawable/ic_invert_colors"
-            android:summary="@string/pure_theme_summary"
-            app:defaultValue="false"
-            app:key="pure_theme"
-            app:title="@string/pure_theme" />
-
-        <ListPreference
-            android:icon="@drawable/ic_color"
-            app:defaultValue="purple"
-            app:entries="@array/accents"
-            app:entryValues="@array/accentsValue"
-            app:key="accent_color"
-            app:title="@string/color_accent"
-            app:useSimpleSummaryProvider="true" />
-
-        <Preference
-            android:icon="@drawable/ic_frame"
-            app:key="icon_change"
-            app:title="@string/app_icon" />
+        <!-- Items removed as per user request -->
 
     </PreferenceCategory>
 

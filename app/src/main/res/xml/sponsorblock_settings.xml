@@ -35,12 +35,7 @@
         app:summary="@string/dearrow_summary"
         app:title="@string/dearrow" />
 
-    <SwitchPreferenceCompat
-        android:summaryOff="@string/disabled"
-        android:summaryOn="@string/enabled"
-        app:defaultValue="false"
-        app:key="dearrow_contribute_key"
-        app:title="@string/contribute_to_dearrow" />
+
 
     <SwitchPreferenceCompat
         app:defaultValue="true"
