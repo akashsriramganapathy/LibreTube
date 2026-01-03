@@ -54,21 +54,28 @@ object AutoBackupHelper {
                 set(java.util.Calendar.MILLISECOND, 0)
             }
 
+            // If target time is in the past, move to tomorrow
+            // Exception: if it's within the current minute, let it run now (initialDelay = 0).
             if (target.before(now)) {
-                target.add(java.util.Calendar.DAY_OF_YEAR, 1)
+                val diffMillis = now.timeInMillis - target.timeInMillis
+                if (diffMillis > 60000) { // If it's more than 1 minute ago, it's definitely for tomorrow
+                    target.add(java.util.Calendar.DAY_OF_YEAR, 1)
+                }
             }
 
+            // Calculate delay. If target is still before now (same minute case), it results in negative/zero.
+            // setInitialDelay handles values <= 0 by running as soon as possible.
             val initialDelayMillis = target.timeInMillis - now.timeInMillis
-            Log.d("AutoBackupHelper", "Scheduling backup for $preferredTime (initial delay: ${initialDelayMillis / 1000}s)")
+            Log.d("AutoBackupHelper", "Scheduling backup for $preferredTime (Target: ${target.time}, Delay: ${initialDelayMillis / 1000}s)")
             builder.setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
         }
 
         val request = builder.build()
         
-        // Use KEEP or UPDATE? If we want to CHANGE the time/interval, we must use UPDATE.
+        // Use CANCEL_AND_REENQUEUE to ensure the new initial delay and interval are applied immediately.
         workManager.enqueueUniquePeriodicWork(
             WORK_TAG,
-            ExistingPeriodicWorkPolicy.UPDATE,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
             request
         )
     }

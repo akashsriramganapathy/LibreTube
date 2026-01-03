@@ -114,11 +114,40 @@ class AutoBackupWorker(
             } catch (e: Exception) {
                 Log.e("AutoBackupWorker", "Pruning failed but backup was successful", e)
             }
+
+            // 8. Notify user
+            showSuccessNotification(filename)
             
             Result.success()
         } catch (e: Exception) {
             Log.e("AutoBackupWorker", "Error writing backup data to file", e)
             Result.failure()
+        }
+    }
+
+    private fun showSuccessNotification(filename: String) {
+        val context = applicationContext
+        val notificationManager = androidx.core.app.NotificationManagerCompat.from(context)
+        
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                return
+            }
+        }
+
+        val channelId = com.github.libretube.LibreTubeApp.PUSH_CHANNEL_NAME
+        val notification = androidx.core.app.NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_save) // Assuming ic_save exists
+            .setContentTitle("Auto Backup Successful")
+            .setContentText("Created: $filename")
+            .setPriority(androidx.core.app.NotificationCompat.PRIORITY_LOW)
+            .setAutoCancel(true)
+            .build()
+
+        try {
+            notificationManager.notify(1001, notification)
+        } catch (e: SecurityException) {
+            Log.e("AutoBackupWorker", "Failed to show notification: $e")
         }
     }
 
