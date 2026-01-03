@@ -266,10 +266,10 @@ class DownloadsFragmentPage : DynamicLayoutManagerFragment(R.layout.fragment_dow
             NavigationHelper.openAudioPlayerFragment(requireContext(), offlinePlayer = true)
         }
 
-        playerViewModel.isMiniPlayerVisible.observe(viewLifecycleOwner) { isMiniPlayerVisible ->
-            binding.shuffleAll.updateLayoutParams<MarginLayoutParams> {
-                bottomMargin = (if (isMiniPlayerVisible) 64f else 16f).dpToPx()
-            }
+
+
+        playerViewModel.isFullscreen.observe(viewLifecycleOwner) { isFullscreen ->
+            binding.root.isGone = isFullscreen == true
         }
     }
 
