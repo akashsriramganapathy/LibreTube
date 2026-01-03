@@ -59,6 +59,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.file.Files
 import kotlin.io.path.fileSize
 
 enum class DownloadTab {
@@ -175,7 +176,7 @@ class DownloadsFragmentPage : DynamicLayoutManagerFragment(R.layout.fragment_dow
         adapter = DownloadsAdapter(requireContext(), downloadTab ?: DownloadTab.VIDEO) {
             var isDownloading = false
             val ids = it.downloadItems
-                .filter { item -> item.path.fileSize() < item.downloadSize }
+                .filter { item -> (if (Files.exists(item.path)) item.path.fileSize() else 0L) < item.downloadSize || item.downloadSize == -1L }
                 .map { item -> item.id }
 
             if (!serviceConnection.isBound) {
