@@ -9,7 +9,7 @@ import androidx.work.WorkerParameters
 import com.github.libretube.R
 import com.github.libretube.api.JsonHelper
 import com.github.libretube.constants.PreferenceKeys
-import com.github.libretube.extensions.TAG
+import com.github.libretube.helpers.AutoBackupHelper
 import com.github.libretube.helpers.BackupHelper
 import com.github.libretube.helpers.PreferenceHelper
 import com.github.libretube.util.TextUtils
@@ -110,7 +110,7 @@ class AutoBackupWorker(
             
             // 7. Prune old backups
             try {
-                pruneOldBackups(documentDir)
+                AutoBackupHelper.pruneOldBackups(context)
             } catch (e: Exception) {
                 Log.e("AutoBackupWorker", "Pruning failed but backup was successful", e)
             }
@@ -150,25 +150,5 @@ class AutoBackupWorker(
             Log.e("AutoBackupWorker", "Failed to show notification: $e")
         }
     }
-
-    private fun pruneOldBackups(directory: DocumentFile) {
-        val maxKeepString = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_MAX_KEEP, "25")
-        val maxKeep = maxKeepString.toIntOrNull() ?: 25
-        
-        val backups = directory.listFiles()
-            .filter { it.isFile && it.name?.startsWith("libretube-autobackup-") == true }
-            .sortedByDescending { it.name } // libretube-autobackup-YYYY-MM-DD-HH-mm-ss.json sorts well
-            
-        if (backups.size > maxKeep) {
-            val toDelete = backups.drop(maxKeep)
-            toDelete.forEach { 
-                try {
-                    it.delete()
-                    Log.d(TAG(), "Deleted old backup: ${it.name}")
-                } catch (e: Exception) {
-                    Log.e(TAG(), "Failed to delete old backup ${it.name}: $e")
-                }
-            }
-        }
-    }
 }
+

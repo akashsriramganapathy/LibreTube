@@ -297,7 +297,11 @@ class BackupRestoreSettings : BasePreferenceFragment() {
 
         val autoBackupMaxKeep = findPreference<androidx.preference.ListPreference>(PreferenceKeys.AUTO_BACKUP_MAX_KEEP)
         autoBackupMaxKeep?.setOnPreferenceChangeListener { _, newValue ->
-            autoBackupMaxKeep.summary = getString(R.string.auto_backup_max_keep_summary, newValue as String)
+            PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_MAX_KEEP, newValue as String)
+            autoBackupMaxKeep.summary = getString(R.string.auto_backup_max_keep_summary, newValue)
+            lifecycleScope.launch(Dispatchers.IO) {
+                AutoBackupHelper.pruneOldBackups(requireContext())
+            }
             true
         }
         autoBackupMaxKeep?.summary = getString(R.string.auto_backup_max_keep_summary, 

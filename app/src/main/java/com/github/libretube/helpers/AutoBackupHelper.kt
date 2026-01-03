@@ -2,6 +2,7 @@ package com.github.libretube.helpers
 
 import android.content.Context
 import android.util.Log
+import androidx.documentfile.provider.DocumentFile
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -11,6 +12,60 @@ import java.util.concurrent.TimeUnit
 
 object AutoBackupHelper {
     private const val WORK_TAG = "auto_backup_work"
+
+    fun pruneOldBackups(context: Context) {
+        val pathString = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
+        if (pathString.isEmpty()) return
+
+        val treeUri = try { 
+            android.net.Uri.parse(pathString) 
+        } catch (e: Exception) { 
+            Log.e("AutoBackupHelper", "Failed to parse path URI for pruning: $pathString", e)
+            return 
+        }
+
+        val documentDir = try {
+            DocumentFile.fromTreeUri(context, treeUri)
+        } catch (e: Exception) {
+            Log.e("AutoBackupHelper", "Failed to get DocumentFile for pruning", e)
+            null
+        }
+
+        if (documentDir == null || !documentDir.exists()) {
+            Log.w("AutoBackupHelper", "Backup directory does not exist or is inaccessible for pruning")
+            return
+        }
+
+        val maxKeepString = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_MAX_KEEP, "25")
+        val maxKeep = maxKeepString.toIntOrNull() ?: 25
+        
+        val allFiles = documentDir.listFiles()
+        val autoBackups = allFiles.filter { 
+            val name = it.name ?: ""
+            it.isFile && (name.startsWith("libretube-autobackup-") || name.startsWith("libretube-backup-")) && name.endsWith(".json")
+        }.sortedByDescending { it.name ?: "" }
+        
+        Log.d("AutoBackupHelper", "Pruning evaluation: total items=${allFiles.size}, matching backups=${autoBackups.size}, max-keep=$maxKeep")
+
+        if (autoBackups.size > maxKeep) {
+            val toDelete = autoBackups.drop(maxKeep)
+            Log.i("AutoBackupHelper", "Deleting ${toDelete.size} old backups to maintain limit of $maxKeep")
+            toDelete.forEach { 
+                val name = it.name
+                try {
+                    if (it.delete()) {
+                        Log.d("AutoBackupHelper", "Deleted: $name")
+                    } else {
+                        Log.e("AutoBackupHelper", "Failed to delete: $name")
+                    }
+                } catch (e: Exception) {
+                    Log.e("AutoBackupHelper", "Error deleting $name: $e")
+                }
+            }
+        } else {
+            Log.d("AutoBackupHelper", "No pruning needed (count <= maxKeep)")
+        }
+    }
 
     fun scheduleBackup(context: Context) {
         val workManager = WorkManager.getInstance(context)
