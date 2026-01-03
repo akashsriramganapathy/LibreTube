@@ -234,11 +234,13 @@ class DownloadService : LifecycleService() {
         val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: return))
 
         // only fetch the content length if it's not been returned by the API
+        Log.d(TAG(), "Starting download for ${item.fileName}. Initial size=${item.downloadSize}, URL=$url")
         if (item.downloadSize <= 0L) {
             url.getContentLength()?.let { size ->
+                Log.d(TAG(), "Fetched content length: $size")
                 item.downloadSize = size
                 Database.downloadDao().updateDownloadItem(item)
-            }
+            } ?: Log.e(TAG(), "Failed to fetch content length for $url")
         }
 
         while (totalRead < item.downloadSize) {
@@ -253,6 +255,8 @@ class DownloadService : LifecycleService() {
                 break
             }
         }
+        
+        Log.d(TAG(), "Download loop finished. totalRead=$totalRead, downloadSize=${item.downloadSize}")
 
         val completed = totalRead >= item.downloadSize
         if (completed) {
