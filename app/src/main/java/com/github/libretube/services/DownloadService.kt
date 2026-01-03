@@ -169,6 +169,7 @@ class DownloadService : LifecycleService() {
             } catch (e: Exception) {
                 Log.e(TAG(), e.stackTraceToString())
                 toastFromMainDispatcher(e.localizedMessage.orEmpty())
+                stopServiceIfDone()
                 return@launch
             }
 
