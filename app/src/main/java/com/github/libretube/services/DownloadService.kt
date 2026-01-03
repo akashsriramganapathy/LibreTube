@@ -276,6 +276,9 @@ class DownloadService : LifecycleService() {
 
             setPauseNotification(notificationBuilder, item, completed)
         } finally {
+            runCatching {
+                if (item.path.fileSize() == 0L) item.path.deleteIfExists()
+            }
             downloadQueue[item.id] = false
 
             if (downloadFlow.firstOrNull { it.first == item.id }?.second == DownloadStatus.Stopped) {
@@ -314,8 +317,8 @@ class DownloadService : LifecycleService() {
             startConnection(item, url, totalReadBefore, item.downloadSize) ?: return totalReadBefore
 
         var totalRead = totalReadBefore
-
-        val sink = item.path.sink(StandardOpenOption.APPEND).buffer()
+        
+        val sink = item.path.sink(StandardOpenOption.CREATE, StandardOpenOption.APPEND).buffer()
         val sourceByte = source.byteStream().source()
 
         var lastTime = System.currentTimeMillis()
@@ -455,7 +458,7 @@ class DownloadService : LifecycleService() {
             FileType.AUDIO -> getDownloadPath(DownloadHelper.AUDIO_DIR, item.fileName)
             FileType.VIDEO -> getDownloadPath(DownloadHelper.VIDEO_DIR, item.fileName)
             FileType.SUBTITLE -> getDownloadPath(DownloadHelper.SUBTITLE_DIR, item.fileName)
-        }.apply { deleteIfExists() }.createFile()
+        }.apply { deleteIfExists() }
 
         lifecycleScope.launch(coroutineContext) {
             item.id = Database.downloadDao().insertDownloadItem(item).toInt()
