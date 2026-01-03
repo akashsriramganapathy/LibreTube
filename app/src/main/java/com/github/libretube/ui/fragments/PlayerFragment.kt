@@ -242,7 +242,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player), OnlinePlayerOptions {
                     mainActivity
                 )
             ) {
-                PictureInPictureCompat.setPictureInPictureParams(requireActivity(), pipParams)
+                activity?.let { PictureInPictureCompat.setPictureInPictureParams(it, pipParams) }
             }
 
             if (isPlaying && PlayerHelper.sponsorBlockEnabled) {

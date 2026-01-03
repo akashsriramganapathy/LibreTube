@@ -320,7 +320,7 @@ abstract class AbstractPlayerService : MediaLibraryService(), MediaLibrarySessio
 
         val forwardingPlayer = MediaSessionForwarder(player)
         mediaLibrarySession = MediaLibrarySession.Builder(this, forwardingPlayer, this)
-            .setId(this.javaClass.name)
+            .setId(this.javaClass.name + System.currentTimeMillis())
             .build()
     }
 
