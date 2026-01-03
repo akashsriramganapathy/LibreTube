@@ -91,6 +91,8 @@ object BackupHelper {
 
         // decide for each preference which type it is and save it to the preferences
         preferences.forEach { (key, jsonValue) ->
+            if (key == null) return@forEach
+
             val value = if (jsonValue.isString) {
                 jsonValue.content
             } else {
@@ -105,7 +107,7 @@ object BackupHelper {
                 is Long -> PreferenceHelper.putLong(key, value)
                 is Int -> {
                     // we only use integers for SponsorBlock colors and the start fragment
-                    if (key == PreferenceKeys.START_FRAGMENT || "_color" in key.orEmpty()) {
+                    if (key == PreferenceKeys.START_FRAGMENT || "_color" in key) {
                         PreferenceHelper.putInt(key, value)
                     } else {
                         PreferenceHelper.putLong(key, value.toLong())
