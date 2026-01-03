@@ -583,14 +583,16 @@ class DownloadService : LifecycleService() {
         )
     }
 
-    private fun getNotificationBuilder(item: DownloadItem): Builder {
+    private suspend fun getNotificationBuilder(item: DownloadItem): Builder {
         val intent = Intent(this@DownloadService, MainActivity::class.java)
             .putExtra(IntentData.OPEN_DOWNLOADS, true)
         val activityIntent = PendingIntentCompat
             .getActivity(this@DownloadService, 0, intent, FLAG_CANCEL_CURRENT, false)
 
+        val title = Database.downloadDao().findById(item.videoId)?.download?.title ?: item.fileName
+
         return Builder(this, DOWNLOAD_CHANNEL_NAME)
-            .setContentTitle(item.fileName)
+            .setContentTitle(title)
             .setProgress(0, 0, true)
             .setOngoing(true)
             .setContentIntent(activityIntent)

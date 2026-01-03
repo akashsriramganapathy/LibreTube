@@ -113,6 +113,7 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
             } else {
                 enqueuePublicPlaylist()
             }
+            stopSelf()
         }
 
         return super.onStartCommand(intent, flags, startId)
@@ -124,6 +125,7 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
             .setContentTitle(
                 getString(R.string.enqueueing_playlist_download, playlistName ?: "...")
             )
+            .setContentText("$amountOfVideosDone / $amountOfVideos")
             .setProgress(amountOfVideos, amountOfVideosDone, false)
             .setOnlyAlertOnce(true)
             .build()
@@ -214,7 +216,7 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
             nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
         }
 
-        if (amountOfVideos == amountOfVideosDone) stopSelf()
+
     }
     
     private suspend fun processSingleStream(stream: StreamItem, playlistId: String) {
