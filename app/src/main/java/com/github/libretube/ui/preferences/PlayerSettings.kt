@@ -35,21 +35,12 @@ class PlayerSettings : BasePreferenceFragment() {
             true
         }
 
-        val behaviorWhenMinimized =
-            findPreference<ListPreference>(PreferenceKeys.BEHAVIOR_WHEN_MINIMIZED)!!
+
+
         val alternativePipControls =
             findPreference<SwitchPreferenceCompat>(PreferenceKeys.ALTERNATIVE_PIP_CONTROLS)
 
         val pipAvailable = PictureInPictureCompat.isPictureInPictureAvailable(requireContext())
-        if (!pipAvailable) {
-            with(behaviorWhenMinimized) {
-                // remove PiP option entry
-                entries = entries.toList().subList(1, 3).toTypedArray()
-                entryValues = entryValues.toList().subList(1, 3).toTypedArray()
-                if (value !in entryValues) value = entryValues.first().toString()
-            }
-        }
-
         alternativePipControls?.isVisible = pipAvailable
     }
 
