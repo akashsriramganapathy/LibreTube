@@ -40,6 +40,39 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/auto_backup">
+        <SwitchPreferenceCompat
+            app:key="auto_backup_enabled"
+            app:title="@string/auto_backup_enabled"
+            app:defaultValue="false" />
+
+        <Preference
+            app:key="auto_backup_path"
+            app:title="@string/auto_backup_path"
+            app:summary="@string/auto_backup_path_summary" />
+
+        <ListPreference
+            app:defaultValue="24"
+            app:summary="%s" />
+
+        <Preference
+            android:key="auto_backup_time"
+            app:title="@string/auto_backup_time"
+            app:summary="@string/auto_backup_time_summary" />
+
+        <ListPreference
+            app:key="auto_backup_max_keep"
+            app:title="@string/auto_backup_max_keep"
+            app:entries="@array/auto_backup_max_keep_entries"
+            app:entryValues="@array/auto_backup_max_keep_values"
+            app:defaultValue="25"
+            app:summary="@string/auto_backup_max_keep_summary" />
+
+        <Preference
+            app:key="auto_backup_backup_now"
+            app:title="@string/auto_backup_backup_now" />
+    </PreferenceCategory>
+
     <PreferenceCategory app:title="@string/app_backup">
 
         <Preference

@@ -1,4 +1,4 @@
-name: Sync and Build
+name: Nightly Build
 
 on:
   schedule:

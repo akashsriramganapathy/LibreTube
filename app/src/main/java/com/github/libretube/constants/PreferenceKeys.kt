@@ -140,6 +140,13 @@ object PreferenceKeys {
     const val LAST_SHOWN_INFO_MESSAGE_VERSION_CODE = "last_shown_info_message_version"
     const val PREFERENCE_VERSION = "PREFERENCE_VERSION"
 
+    // Auto Backup
+    const val AUTO_BACKUP_ENABLED = "auto_backup_enabled"
+    const val AUTO_BACKUP_PATH = "auto_backup_path"
+    const val AUTO_BACKUP_INTERVAL = "auto_backup_interval"
+    const val AUTO_BACKUP_TIME = "auto_backup_time"
+    const val AUTO_BACKUP_MAX_KEEP = "auto_backup_max_keep"
+
     // use the helper methods at PreferenceHelper to access these
     const val LAST_USER_SEEN_FEED_TIME = "last_watched_feed_time"
     const val LAST_REFRESHED_FEED_TIME = "last_refreshed_feed_time"

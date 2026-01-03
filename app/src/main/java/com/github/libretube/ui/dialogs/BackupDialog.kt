@@ -10,90 +10,31 @@ import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.lifecycleScope
 import com.github.libretube.R
 import com.github.libretube.constants.IntentData
-import com.github.libretube.db.DatabaseHolder.Database
-import com.github.libretube.helpers.PreferenceHelper
+import com.github.libretube.helpers.BackupHelper
 import com.github.libretube.obj.BackupFile
-import com.github.libretube.obj.PipedImportPlaylist
-import com.github.libretube.obj.PreferenceItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
-import kotlinx.serialization.json.JsonPrimitive
 
 class BackupDialog : DialogFragment() {
-    sealed class BackupOption(
-        @StringRes val name: Int,
-        val onSelected: suspend (BackupFile) -> Unit
-    ) {
-        data object WatchHistory : BackupOption(R.string.watch_history, onSelected = {
-            it.watchHistory = Database.watchHistoryDao().getAll()
-        })
 
-        data object WatchPositions : BackupOption(R.string.watch_positions, onSelected = {
-            it.watchPositions = Database.watchPositionDao().getAll()
-        })
-
-        data object SearchHistory : BackupOption(R.string.search_history, onSelected = {
-            it.searchHistory = Database.searchHistoryDao().getAll()
-        })
-
-        data object LocalSubscriptions : BackupOption(R.string.local_subscriptions, onSelected = {
-            it.subscriptions = Database.localSubscriptionDao().getAll()
-        })
-
-        data object CustomInstances : BackupOption(R.string.backup_customInstances, onSelected = {
-            it.customInstances = Database.customInstanceDao().getAll()
-        })
-
-        data object PlaylistBookmarks : BackupOption(R.string.bookmarks, onSelected = {
-            it.playlistBookmarks = Database.playlistBookmarkDao().getAll()
-        })
-
-        data object LocalPlaylists : BackupOption(R.string.local_playlists, onSelected = {
-            it.localPlaylists = Database.localPlaylistsDao().getAll()
-            it.playlists = it.localPlaylists?.map { (playlist, playlistVideos) ->
-                val videos = playlistVideos.map { item ->
-                    "${ShareDialog.YOUTUBE_FRONTEND_URL}/watch?v=${item.videoId}"
-                }
-                PipedImportPlaylist(playlist.name, "playlist", "private", videos)
-            }
-        })
-
-        data object SubscriptionGroups : BackupOption(R.string.channel_groups, onSelected = {
-            it.groups = Database.subscriptionGroupsDao().getAll()
-        })
-
-        data object Preferences : BackupOption(R.string.preferences, onSelected = { file ->
-            file.preferences = PreferenceHelper.settings.all.map { (key, value) ->
-                val jsonValue = when (value) {
-                    is Number -> JsonPrimitive(value)
-                    is Boolean -> JsonPrimitive(value)
-                    is String -> JsonPrimitive(value)
-                    is Set<*> -> JsonPrimitive(value.joinToString(","))
-                    else -> JsonNull
-                }
-                PreferenceItem(key, jsonValue)
-            }
-        })
-    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val backupOptions = listOf(
-            BackupOption.WatchHistory,
-            BackupOption.WatchPositions,
-            BackupOption.SearchHistory,
-            BackupOption.LocalSubscriptions,
-            BackupOption.CustomInstances,
-            BackupOption.PlaylistBookmarks,
-            BackupOption.LocalPlaylists,
-            BackupOption.SubscriptionGroups,
-            BackupOption.Preferences
+            BackupHelper.BackupOption.WatchHistory,
+            BackupHelper.BackupOption.WatchPositions,
+            BackupHelper.BackupOption.SearchHistory,
+            BackupHelper.BackupOption.LocalSubscriptions,
+            BackupHelper.BackupOption.CustomInstances,
+            BackupHelper.BackupOption.PlaylistBookmarks,
+            BackupHelper.BackupOption.LocalPlaylists,
+            BackupHelper.BackupOption.SubscriptionGroups,
+            BackupHelper.BackupOption.Preferences
         )
 
-        val backupItems = backupOptions.map { context?.getString(it.name)!! }.toTypedArray()
+        val backupItems = backupOptions.map { context?.getString(it.nameRes)!! }.toTypedArray()
 
         val selected = BooleanArray(backupOptions.size) { true }
 
@@ -110,11 +51,8 @@ class BackupDialog : DialogFragment() {
                     requireDialog().hide()
 
                     lifecycleScope.launch(Dispatchers.IO) {
-                        val backupFile = BackupFile()
-
-                        backupOptions.forEachIndexed { index, option ->
-                            if (selected[index]) option.onSelected(backupFile)
-                        }
+                        val selectedOptions = backupOptions.filterIndexed { index, _ -> selected[index] }
+                        val backupFile = BackupHelper.createBackup(selectedOptions)
 
                         val encodedBackupFile = Json.encodeToString(backupFile)
                         setFragmentResult(

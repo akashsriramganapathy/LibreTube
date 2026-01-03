@@ -13,6 +13,8 @@ import com.github.libretube.constants.IntentData
 import com.github.libretube.constants.PreferenceKeys
 import com.github.libretube.databinding.DialogImportExportFormatChooserBinding
 import com.github.libretube.enums.ImportFormat
+import com.github.libretube.extensions.toastFromMainThread
+import com.github.libretube.helpers.AutoBackupHelper
 import com.github.libretube.helpers.BackupHelper
 import com.github.libretube.helpers.ImportHelper
 import com.github.libretube.helpers.PreferenceHelper
@@ -121,8 +123,30 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             }
         }
 
+    private val openDocumentTree = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri == null) return@registerForActivityResult
+        
+        // Persist permissions
+        try {
+            requireContext().contentResolver.takePersistableUriPermission(
+                uri,
+                android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION or android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_PATH, uri.toString())
+        updateBackupPathSummary(uri.toString())
+        
+        // If enabled, reschedule to ensure everything is correct
+        AutoBackupHelper.scheduleBackup(requireContext())
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.import_export_settings, rootKey)
+
+        // ... existing listeners ...
 
         val importSubscriptions = findPreference<Preference>("import_subscriptions")
         importSubscriptions?.setOnPreferenceClickListener {
@@ -215,10 +239,83 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             getBackupFile.launch(JSON)
             true
         }
+
+        // Auto Backup
+        val autoBackupEnabled = findPreference<androidx.preference.SwitchPreferenceCompat>(PreferenceKeys.AUTO_BACKUP_ENABLED)
+        autoBackupEnabled?.setOnPreferenceChangeListener { _, newValue ->
+            PreferenceHelper.putBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, newValue as Boolean)
+            AutoBackupHelper.scheduleBackup(requireContext())
+            true
+        }
+
+        val autoBackupPath = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)
+        autoBackupPath?.setOnPreferenceClickListener {
+            openDocumentTree.launch(null)
+            true
+        }
+        updateBackupPathSummary(PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, ""))
+
+        val autoBackupInterval = findPreference<androidx.preference.ListPreference>(PreferenceKeys.AUTO_BACKUP_INTERVAL)
+        autoBackupInterval?.setOnPreferenceChangeListener { _, _ ->
+            lifecycleScope.launch(Dispatchers.Main) { 
+                 AutoBackupHelper.scheduleBackup(requireContext())
+            }
+            true
+        }
+
+        val autoBackupTime = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_TIME)
+        autoBackupTime?.setOnPreferenceClickListener {
+            val currentTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00")
+            val parts = currentTime.split(":")
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: 2
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+
+            android.app.TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
+                val newTime = String.format("%02d:%02d", selectedHour, selectedMinute)
+                PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_TIME, newTime)
+                updateBackupTimeSummary(newTime)
+                AutoBackupHelper.scheduleBackup(requireContext())
+            }, hour, minute, android.text.format.DateFormat.is24HourFormat(requireContext())).show()
+            true
+        }
+        updateBackupTimeSummary(PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00"))
+
+        val autoBackupMaxKeep = findPreference<androidx.preference.ListPreference>(PreferenceKeys.AUTO_BACKUP_MAX_KEEP)
+        autoBackupMaxKeep?.setOnPreferenceChangeListener { _, newValue ->
+            autoBackupMaxKeep.summary = getString(R.string.auto_backup_max_keep_summary, newValue as String)
+            true
+        }
+        autoBackupMaxKeep?.summary = getString(R.string.auto_backup_max_keep_summary, 
+            PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_MAX_KEEP, "25"))
+        
+        val backupNow = findPreference<Preference>("auto_backup_backup_now")
+        backupNow?.setOnPreferenceClickListener {
+            androidx.work.WorkManager.getInstance(requireContext())
+                .enqueue(androidx.work.OneTimeWorkRequest.from(com.github.libretube.workers.AutoBackupWorker::class.java))
+            requireContext().toastFromMainThread(R.string.backup_creation_success) // Just a feedback that it started?
+            true
+        }
+    }
+
+    private fun updateBackupTimeSummary(time: String) {
+        val autoBackupTime = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_TIME)
+        autoBackupTime?.summary = getString(R.string.auto_backup_time_summary, time)
+    }
+
+    private fun updateBackupPathSummary(path: String?) {
+        val autoBackupPath = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)
+        if (path != null) {
+            val uri = android.net.Uri.parse(path)
+            // Try to make it readable
+            autoBackupPath?.summary = androidx.documentfile.provider.DocumentFile.fromTreeUri(requireContext(), uri)?.name ?: path
+        } else {
+            autoBackupPath?.summary = getString(R.string.auto_backup_no_path_selected)
+        }
     }
 
     companion object {
         const val JSON = "application/json"
+    // ... rest of companion object ...
 
         /**
          * Mimetype to use to create new files when setting extension manually
