@@ -63,8 +63,8 @@ class LocalPlaylistsRepository: PlaylistRepository {
 
             val playlist = localPlaylist.playlist
             // Always set the new playlist thumbnail URL to the last added video
-            localPlaylistItem.thumbnailUrl?.let {
-                playlist.thumbnailUrl = it
+            if (!localPlaylistItem.thumbnailUrl.isNullOrEmpty()) {
+                playlist.thumbnailUrl = localPlaylistItem.thumbnailUrl!!
                 DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(playlist)
             }
         }

@@ -234,11 +234,11 @@ class DownloadService : LifecycleService() {
             setResumeNotification(notificationBuilder, item)
 
             var totalRead = if (Files.exists(item.path)) item.path.fileSize() else 0L
-            val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: return))
 
             // only fetch the content length if it's not been returned by the API
-            Log.d(TAG(), "Starting download for ${item.fileName}. Initial size=${item.downloadSize}, URL=$url")
+            Log.d(TAG(), "Starting download for ${item.fileName}. Initial size=${item.downloadSize}")
             if (item.downloadSize <= 0L) {
+                val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: return))
                 url.getContentLength()?.let { size ->
                     Log.d(TAG(), "Fetched content length: $size")
                     item.downloadSize = size
@@ -248,6 +248,7 @@ class DownloadService : LifecycleService() {
 
             var lastLoopTotalRead = totalRead
             while (totalRead < item.downloadSize || item.downloadSize == -1L) {
+                val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: break))
                 try {
                     totalRead = progressDownload(item, url, totalRead, notificationBuilder)
                     if (totalRead == lastLoopTotalRead) {
@@ -411,7 +412,7 @@ class DownloadService : LifecycleService() {
                 val call = httpClient.newCall(request)
                 val response = call.execute()
 
-                return@withContext handleResponse(item, response)
+                return@withContext handleResponse(item, response, url)
             } catch (e: IOException) {
                 Log.e(this::javaClass.name, e.printStackTrace().toString())
 
@@ -424,12 +425,13 @@ class DownloadService : LifecycleService() {
         }
     }
 
-    private suspend fun handleResponse(item: DownloadItem, response: Response): ResponseBody? {
+    private suspend fun handleResponse(item: DownloadItem, response: Response, requestUrl: URL): ResponseBody? {
         // If link is expired try to regenerate using available info.
         if (response.code == 403) {
-            regenerateLink(item)
             response.close()
-            downloadFile(item)
+            if (regenerateLink(item)) {
+                return startConnection(item, URL(item.url), item.path.fileSize(), item.downloadSize)
+            }
             return null
         } else if (response.code !in 200..299) {
             val message = getString(R.string.downloadfailed) + ": " + response.message
@@ -549,21 +551,25 @@ class DownloadService : LifecycleService() {
     /**
      * Regenerate stream url using available info format and quality.
      */
-    private suspend fun regenerateLink(item: DownloadItem) {
+    private suspend fun regenerateLink(item: DownloadItem): Boolean {
         val streams = runCatching {
             MediaServiceRepository.instance.getStreams(item.videoId)
-        }.getOrNull() ?: return
+        }.getOrNull() ?: return false
         val stream = when (item.type) {
             FileType.AUDIO -> streams.audioStreams
             FileType.VIDEO -> streams.videoStreams
             else -> null
         }
-        stream?.find {
+        val newStream = stream?.find {
             it.format == item.format && it.quality == item.quality && it.audioTrackLocale == item.language
-        }?.let {
-            item.url = it.url
         }
-        Database.downloadDao().updateDownloadItem(item)
+
+        if (newStream != null) {
+            item.url = newStream.url
+            Database.downloadDao().updateDownloadItem(item)
+            return true
+        }
+        return false
     }
 
     /**
