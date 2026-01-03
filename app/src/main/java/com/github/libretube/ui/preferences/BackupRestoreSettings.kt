@@ -304,10 +304,14 @@ class BackupRestoreSettings : BasePreferenceFragment() {
 
     private fun updateBackupPathSummary(path: String?) {
         val autoBackupPath = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_PATH)
-        if (path != null) {
-            val uri = android.net.Uri.parse(path)
-            // Try to make it readable
-            autoBackupPath?.summary = androidx.documentfile.provider.DocumentFile.fromTreeUri(requireContext(), uri)?.name ?: path
+        if (!path.isNullOrBlank()) {
+            try {
+                val uri = android.net.Uri.parse(path)
+                // Try to make it readable
+                autoBackupPath?.summary = androidx.documentfile.provider.DocumentFile.fromTreeUri(requireContext(), uri)?.name ?: path
+            } catch (e: Exception) {
+                autoBackupPath?.summary = path
+            }
         } else {
             autoBackupPath?.summary = getString(R.string.auto_backup_no_path_selected)
         }
