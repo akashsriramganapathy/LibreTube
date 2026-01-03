@@ -128,6 +128,7 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
             .setContentText("$amountOfVideosDone / $amountOfVideos")
             .setProgress(amountOfVideos, amountOfVideosDone, false)
             .setOnlyAlertOnce(true)
+            .setSilent(true)
             .build()
     }
 
@@ -203,6 +204,8 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
     private suspend fun enqueueStreams(playlistId: String, streams: List<StreamItem>) {
         nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
 
+        var lastNotifyTime = System.currentTimeMillis()
+
         // Process streams in parallel chunks to speed up metadata fetching
         streams.chunked(5).forEach { batch -> // Process 5 videos concurrently
             val deferreds = batch.map { stream ->
@@ -212,11 +215,13 @@ class PlaylistDownloadEnqueueService : LifecycleService() {
             }
             deferreds.awaitAll()
             
-            // Notify progress after each batch
-            nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
+            // Notify progress after each batch, rate limited
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastNotifyTime > 500 || amountOfVideosDone == amountOfVideos) {
+                nManager.notify(NotificationId.ENQUEUE_PLAYLIST_DOWNLOAD.id, buildNotification())
+                lastNotifyTime = currentTime
+            }
         }
-
-
     }
     
     private suspend fun processSingleStream(stream: StreamItem, playlistId: String) {
