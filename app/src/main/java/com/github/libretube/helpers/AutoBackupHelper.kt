@@ -43,18 +43,20 @@ object AutoBackupHelper {
         val autoBackups = allFiles.filter { 
             val name = it.name ?: ""
             it.isFile && (name.startsWith("libretube-autobackup-") || name.startsWith("libretube-backup-")) && name.endsWith(".json")
-        }.sortedByDescending { it.name ?: "" }
+        }.sortedByDescending { it.lastModified() }
         
         Log.d("AutoBackupHelper", "Pruning evaluation: total items=${allFiles.size}, matching backups=${autoBackups.size}, max-keep=$maxKeep")
 
         if (autoBackups.size > maxKeep) {
             val toDelete = autoBackups.drop(maxKeep)
             Log.i("AutoBackupHelper", "Deleting ${toDelete.size} old backups to maintain limit of $maxKeep")
+            var deletedCount = 0
             toDelete.forEach { 
                 val name = it.name
                 try {
                     if (it.delete()) {
                         Log.d("AutoBackupHelper", "Deleted: $name")
+                        deletedCount++
                     } else {
                         Log.e("AutoBackupHelper", "Failed to delete: $name")
                     }
@@ -62,8 +64,12 @@ object AutoBackupHelper {
                     Log.e("AutoBackupHelper", "Error deleting $name: $e")
                 }
             }
+            if (deletedCount > 0) {
+                // We're in a background context usually, but if called from UI it might be useful to have feedback.
+                // However, we don't want to toast from here as it might be a worker.
+            }
         } else {
-            Log.d("AutoBackupHelper", "No pruning needed (count <= maxKeep)")
+            Log.d("AutoBackupHelper", "No pruning needed (count ${autoBackups.size} <= maxKeep $maxKeep)")
         }
     }
 

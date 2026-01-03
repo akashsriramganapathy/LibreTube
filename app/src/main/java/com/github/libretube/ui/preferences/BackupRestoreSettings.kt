@@ -251,7 +251,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                 }
             }
             PreferenceHelper.putBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, isChecked)
-            AutoBackupHelper.scheduleBackup(requireContext())
+            AutoBackupHelper.scheduleBackup(requireContext(), androidx.work.ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE)
             true
         }
 
@@ -279,7 +279,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                 val newTime = String.format("%02d:%02d", selectedHour, selectedMinute)
                 PreferenceHelper.putString(PreferenceKeys.AUTO_BACKUP_TIME, newTime)
                 updateBackupTimeSummary(newTime)
-                AutoBackupHelper.scheduleBackup(requireContext())
+                AutoBackupHelper.scheduleBackup(requireContext(), androidx.work.ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE)
             }, hour, minute, android.text.format.DateFormat.is24HourFormat(requireContext())).show()
             true
         }
@@ -294,6 +294,9 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             autoBackupMaxKeep.summary = getString(R.string.auto_backup_max_keep_summary, newValue)
             lifecycleScope.launch(Dispatchers.IO) {
                 AutoBackupHelper.pruneOldBackups(requireContext())
+                withContext(Dispatchers.Main) {
+                    requireContext().toastFromMainThread(R.string.backup_creation_success) // Reuse success string or just generic
+                }
             }
             true
         }
