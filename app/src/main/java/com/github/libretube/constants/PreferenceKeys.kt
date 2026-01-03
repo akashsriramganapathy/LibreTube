@@ -143,7 +143,6 @@ object PreferenceKeys {
     // Auto Backup
     const val AUTO_BACKUP_ENABLED = "auto_backup_enabled"
     const val AUTO_BACKUP_PATH = "auto_backup_path"
-    const val AUTO_BACKUP_INTERVAL = "auto_backup_interval"
     const val AUTO_BACKUP_TIME = "auto_backup_time"
     const val AUTO_BACKUP_MAX_KEEP = "auto_backup_max_keep"
 

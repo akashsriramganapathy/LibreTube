@@ -547,8 +547,6 @@
     <string name="auto_backup_backup_now">Backup Now</string>
     <string name="auto_backup_path">Backup location</string>
     <string name="auto_backup_path_summary">Select a folder to save backups</string>
-    <string name="auto_backup_interval">Backup Frequency</string>
-    <string name="auto_backup_interval_summary">Every %s hours</string>
     <string name="auto_backup_time">Preferred Backup Time</string>
     <string name="auto_backup_time_summary">Backup will run around %s</string>
     <string name="auto_backup_max_keep">Max backups to keep</string>

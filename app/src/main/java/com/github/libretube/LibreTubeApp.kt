@@ -34,7 +34,7 @@ class LibreTubeApp : Application() {
         /**
          * Schedule auto backup
          */
-        AutoBackupHelper.scheduleBackup(this)
+        AutoBackupHelper.scheduleBackup(this, ExistingPeriodicWorkPolicy.KEEP)
 
         /**
          * Set the api and the auth api url

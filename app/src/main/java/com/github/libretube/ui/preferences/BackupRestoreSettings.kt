@@ -262,13 +262,6 @@ class BackupRestoreSettings : BasePreferenceFragment() {
         }
         updateBackupPathSummary(PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, ""))
 
-        val autoBackupInterval = findPreference<androidx.preference.ListPreference>(PreferenceKeys.AUTO_BACKUP_INTERVAL)
-        autoBackupInterval?.setOnPreferenceChangeListener { _, _ ->
-            lifecycleScope.launch(Dispatchers.Main) { 
-                 AutoBackupHelper.scheduleBackup(requireContext())
-            }
-            true
-        }
 
         val autoBackupTime = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_TIME)
         autoBackupTime?.setOnPreferenceClickListener {

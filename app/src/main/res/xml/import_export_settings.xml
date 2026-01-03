@@ -51,13 +51,6 @@
             app:title="@string/auto_backup_path"
             app:summary="@string/auto_backup_path_summary" />
 
-        <ListPreference
-            app:key="auto_backup_interval"
-            app:title="@string/auto_backup_interval"
-            app:entries="@array/auto_backup_interval_entries"
-            app:entryValues="@array/auto_backup_interval_values"
-            app:defaultValue="24"
-            app:summary="%s" />
 
         <Preference
             android:key="auto_backup_time"

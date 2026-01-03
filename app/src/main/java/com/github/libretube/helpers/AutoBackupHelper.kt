@@ -67,7 +67,7 @@ object AutoBackupHelper {
         }
     }
 
-    fun scheduleBackup(context: Context) {
+    fun scheduleBackup(context: Context, policy: ExistingPeriodicWorkPolicy = ExistingPeriodicWorkPolicy.UPDATE) {
         val workManager = WorkManager.getInstance(context)
 
         val enabled = PreferenceHelper.getBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, false)
@@ -84,53 +84,50 @@ object AutoBackupHelper {
             return
         }
 
-        var intervalHours = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_INTERVAL, "24").toLongOrNull() ?: 24L
-        if (intervalHours < 1) intervalHours = 24
+        // Hardcoded to 24 hours as requested
+        val intervalHours = 24L
 
         val builder = PeriodicWorkRequestBuilder<AutoBackupWorker>(intervalHours, TimeUnit.HOURS)
             .addTag(WORK_TAG)
 
-        // Calculate initial delay if interval is daily or more to align with preferred time
-        if (intervalHours >= 24) {
-            val now = java.util.Calendar.getInstance()
-            val currentHour = now.get(java.util.Calendar.HOUR_OF_DAY)
-            val currentMinute = now.get(java.util.Calendar.MINUTE)
-            val defaultTime = String.format("%02d:%02d", currentHour, currentMinute)
+        // Calculate initial delay to align with preferred time
+        val now = java.util.Calendar.getInstance()
+        val currentHour = now.get(java.util.Calendar.HOUR_OF_DAY)
+        val currentMinute = now.get(java.util.Calendar.MINUTE)
+        val defaultTime = String.format("%02d:%02d", currentHour, currentMinute)
 
-            val preferredTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, defaultTime)
-            val parts = preferredTime.split(":")
-            val hour = parts.getOrNull(0)?.toIntOrNull() ?: currentHour
-            val minute = parts.getOrNull(1)?.toIntOrNull() ?: currentMinute
+        val preferredTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, defaultTime)
+        val parts = preferredTime.split(":")
+        val hour = parts.getOrNull(0)?.toIntOrNull() ?: currentHour
+        val minute = parts.getOrNull(1)?.toIntOrNull() ?: currentMinute
 
-            val target = java.util.Calendar.getInstance().apply {
-                set(java.util.Calendar.HOUR_OF_DAY, hour)
-                set(java.util.Calendar.MINUTE, minute)
-                set(java.util.Calendar.SECOND, 0)
-                set(java.util.Calendar.MILLISECOND, 0)
-            }
-
-            // If target time is in the past, move to tomorrow
-            // Exception: if it's within the current minute, let it run now (initialDelay = 0).
-            if (target.before(now)) {
-                val diffMillis = now.timeInMillis - target.timeInMillis
-                if (diffMillis > 60000) { // If it's more than 1 minute ago, it's definitely for tomorrow
-                    target.add(java.util.Calendar.DAY_OF_YEAR, 1)
-                }
-            }
-
-            // Calculate delay. If target is still before now (same minute case), it results in negative/zero.
-            // setInitialDelay handles values <= 0 by running as soon as possible.
-            val initialDelayMillis = target.timeInMillis - now.timeInMillis
-            Log.d("AutoBackupHelper", "Scheduling backup for $preferredTime (Target: ${target.time}, Delay: ${initialDelayMillis / 1000}s)")
-            builder.setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
+        val target = java.util.Calendar.getInstance().apply {
+            set(java.util.Calendar.HOUR_OF_DAY, hour)
+            set(java.util.Calendar.MINUTE, minute)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
         }
+
+        // If target time is in the past, move to tomorrow
+        // Exception: if it's within the current minute, let it run now (initialDelay = 0).
+        if (target.before(now)) {
+            val diffMillis = now.timeInMillis - target.timeInMillis
+            if (diffMillis > 60000) { // If it's more than 1 minute ago, it's definitely for tomorrow
+                target.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            }
+        }
+
+        // Calculate delay. If target is still before now (same minute case), it results in negative/zero.
+        // setInitialDelay handles values <= 0 by running as soon as possible.
+        val initialDelayMillis = target.timeInMillis - now.timeInMillis
+        Log.d("AutoBackupHelper", "Scheduling daily backup for $preferredTime (Target: ${target.time}, Delay: ${initialDelayMillis / 1000}s, Policy: $policy)")
+        builder.setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
 
         val request = builder.build()
         
-        // Use CANCEL_AND_REENQUEUE to ensure the new initial delay and interval are applied immediately.
         workManager.enqueueUniquePeriodicWork(
             WORK_TAG,
-            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            policy,
             request
         )
     }
