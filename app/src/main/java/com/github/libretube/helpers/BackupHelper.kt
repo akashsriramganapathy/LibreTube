@@ -30,9 +30,16 @@ import kotlinx.serialization.json.longOrNull
 object BackupHelper {
     /**
      * Write a [BackupFile] containing the database content as well as the preferences
+     * @deprecated Use DatabaseExportHelper instead
      */
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun createAdvancedBackup(context: Context, uri: Uri, backupFile: BackupFile) {
+        // Deprecated: Redirect to DatabaseExportHelper if possible, or just keep for legacy if forced
+        // But for this refactor, we are moving away from it.
+        // For now, let's just log and try the old way only if explicitly called,
+        // but we should probably just use the new way.
+        // However, this function signature takes a BackupFile object which is specific to JSON.
+        // So we will leave this as is for now but unused by the new UI.
         try {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 JsonHelper.json.encodeToStream(backupFile, outputStream)
@@ -45,10 +52,43 @@ object BackupHelper {
     }
 
     /**
-     * Restore data from a [BackupFile]
+     * Restore data from a [BackupFile] or a Database file
      */
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun restoreAdvancedBackup(context: Context, uri: Uri) = withContext(Dispatchers.IO) {
+        // Check if it is a database file (based on extension or content, but URI doesn't give content easily without reading)
+        // Let's try to read it as a DB first if filename ends in .db, otherwise try JSON
+        
+        // Simple check on URI path/name isn't always reliable with content://, but we can try.
+        // If it fails to parse as JSON, we might fallback?
+        // Or we decide based on signature.
+        
+        // Let's try to detect if it's a SQLite file.
+        val isSqlite = try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                val header = ByteArray(16)
+                if (input.read(header) == 16) {
+                    val headerString = String(header)
+                    headerString.startsWith("SQLite format 3")
+                } else false
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
+
+        if (isSqlite) {
+            val success = com.github.libretube.helpers.DatabaseExportHelper.importDatabase(context, uri)
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    context.toastFromMainDispatcher(R.string.backup_restore_success)
+                } else {
+                    context.toastFromMainDispatcher(R.string.backup_restore_failed)
+                }
+            }
+            return@withContext
+        }
+
+        // Fallback to Legacy JSON Restore
         val backupFile = try {
             Log.d(TAG(), "Attempting safe restore of backup...")
             context.contentResolver.openInputStream(uri)?.use {

@@ -48,61 +48,35 @@ class AutoBackupWorker(
             return@withContext Result.failure()
         }
 
-        FileLogger.i(TAG, "Starting Auto Backup...")
-        val backupFile = BackupFile()
-        
-        // Populate BackupFile with all data (Auto Backup implies full backup)
-        val watchHistory = Database.watchHistoryDao().getAll()
-        FileLogger.d(TAG, "Fetched ${watchHistory.size} watch history items")
-        backupFile.watchHistory = watchHistory
-
-        backupFile.watchPositions = Database.watchPositionDao().getAll()
-        backupFile.searchHistory = Database.searchHistoryDao().getAll()
-        backupFile.subscriptions = Database.localSubscriptionDao().getAll()
-        backupFile.playlistBookmarks = Database.playlistBookmarkDao().getAll()
-        backupFile.localPlaylists = Database.localPlaylistsDao().getAll()
-        backupFile.groups = Database.subscriptionGroupsDao().getAll()
-        
-        backupFile.preferences = PreferenceHelper.dataStore.getAll().map { (key, value) ->
-            val jsonValue = when {
-                value.equals("true", ignoreCase = true) || value.equals("false", ignoreCase = true) -> JsonPrimitive(value.toBoolean())
-                value.toIntOrNull() != null -> JsonPrimitive(value.toInt())
-                value.toLongOrNull() != null -> JsonPrimitive(value.toLong())
-                value.toFloatOrNull()?.run { if (!isInfinite() && !isNaN()) JsonPrimitive(this) else null } != null -> JsonPrimitive(value.toFloat())
-                else -> JsonPrimitive(value)
-            }
-            PreferenceItem(key, jsonValue)
-        }
+        FileLogger.i(TAG, "Starting Auto Backup (DB Export)...")
 
         val timestamp = TextUtils.getFileSafeTimeStampNow()
-        val fileName = "libretube-auto-backup-$timestamp.json"
+        val fileName = "libretube-auto-backup-$timestamp.db"
 
         try {
-            // Serialize to string first to match Manual Backup behavior
-            val jsonString = kotlinx.serialization.json.Json.encodeToString(backupFile)
-            FileLogger.d(TAG, "Serialized backup size: ${jsonString.length} chars")
-
-            val file = tree.createFile("application/json", fileName)
+            val file = tree.createFile("application/x-sqlite3", fileName)
             if (file == null) {
                 FileLogger.e(TAG, "Failed to create backup file")
                 return@withContext Result.failure()
             }
 
-            applicationContext.contentResolver.openOutputStream(file.uri)?.use { outputStream ->
-                outputStream.write(jsonString.toByteArray())
+            val success = com.github.libretube.helpers.DatabaseExportHelper.exportDatabase(applicationContext, file.uri)
+            
+            if (success) {
+                FileLogger.i(TAG, "Backup written successfully to $fileName")
+                pruneBackups(tree)
+                return@withContext Result.success()
+            } else {
+                FileLogger.e(TAG, "Failed to export database")
+                // Clean up empty file
+                file.delete()
+                return@withContext Result.failure()
             }
-            
-            FileLogger.i(TAG, "Backup written successfully to $fileName")
 
-            // Prune old backups
-            pruneBackups(tree)
-            
         } catch (e: Exception) {
             FileLogger.e(TAG, "Error during auto backup", e)
             return@withContext Result.failure()
         }
-
-        return@withContext Result.success()
     }
 
     private fun pruneBackups(tree: DocumentFile) {
@@ -110,7 +84,7 @@ class AutoBackupWorker(
         val maxFiles = maxFilesStr.toIntOrNull() ?: 3
         
         val files = tree.listFiles().filter { 
-            it.name?.startsWith("libretube-auto-backup-") == true && it.name?.endsWith(".json") == true 
+            it.name?.startsWith("libretube-auto-backup-") == true && (it.name?.endsWith(".json") == true || it.name?.endsWith(".db") == true)
         }.sortedByDescending { it.lastModified() } // Newest first
 
         if (files.size > maxFiles) {

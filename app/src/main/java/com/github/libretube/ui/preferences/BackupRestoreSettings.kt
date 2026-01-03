@@ -54,7 +54,14 @@ class BackupRestoreSettings : BasePreferenceFragment() {
     private val createBackupFile = registerForActivityResult(CreateDocument(FILETYPE_ANY)) { uri ->
         if (uri == null) return@registerForActivityResult
         lifecycleScope.launch(Dispatchers.IO) {
-            BackupHelper.createAdvancedBackup(requireContext().applicationContext, uri, backupFile)
+            val success = com.github.libretube.helpers.DatabaseExportHelper.exportDatabase(requireContext().applicationContext, uri)
+            withContext(Dispatchers.Main) {
+                if (success) {
+                    requireContext().toastFromMainThread(R.string.backup_creation_success)
+                } else {
+                    requireContext().toastFromMainThread(R.string.backup_creation_failed)
+                }
+            }
         }
     }
 
@@ -202,10 +209,15 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             BACKUP_DIALOG_REQUEST_KEY,
             this
         ) { _, resultBundle ->
-            val encodedBackupFile = resultBundle.getString(IntentData.backupFile)!!
-            backupFile = Json.decodeFromString(encodedBackupFile)
-            val timestamp = TextUtils.getFileSafeTimeStampNow()
-            createBackupFile.launch("libretube-backup-${timestamp}.json")
+            when {
+                resultBundle.getBoolean(IntentData.backupCreate, false) -> {
+                    val timestamp = TextUtils.getFileSafeTimeStampNow()
+                    createBackupFile.launch("libretube-backup-${timestamp}.db")
+                }
+                resultBundle.getBoolean(IntentData.backupRestore, false) -> {
+                    getBackupFile.launch(JSON)
+                }
+            }
         }
         val advancedBackup = findPreference<Preference>("backup")
         advancedBackup?.setOnPreferenceClickListener {
