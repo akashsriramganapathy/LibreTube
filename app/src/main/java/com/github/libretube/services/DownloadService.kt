@@ -244,9 +244,16 @@ class DownloadService : LifecycleService() {
             } ?: Log.e(TAG(), "Failed to fetch content length for $url")
         }
 
+        var lastLoopTotalRead = totalRead
         while (totalRead < item.downloadSize) {
             try {
                 totalRead = progressDownload(item, url, totalRead, notificationBuilder)
+                if (totalRead == lastLoopTotalRead) {
+                    // No progress made (likely connection error), break to avoid infinite loop
+                    Log.e(TAG(), "No progress made for ${item.fileName}, breaking loop.")
+                    break
+                }
+                lastLoopTotalRead = totalRead
             } catch (_: CancellationException) {
                 break
             } catch (e: Exception) {
@@ -276,8 +283,9 @@ class DownloadService : LifecycleService() {
 
         // start the next download if there are any remaining ones enqueued
         val nextDownload = withContext(Dispatchers.IO) {
+            // Exclude current item.id to prevent retrying the same failed item immediately (round-robin)
             Database.downloadDao().getAllDownloadItems().firstOrNull {
-                !downloadQueue[it.id] && (it.path.fileSize() < it.downloadSize || it.downloadSize == -1L)
+                it.id != item.id && !downloadQueue[it.id] && (it.path.fileSize() < it.downloadSize || it.downloadSize == -1L)
             }
         }
 
