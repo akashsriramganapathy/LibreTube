@@ -38,6 +38,9 @@ interface DownloadDao {
     @Query("SELECT COUNT(*) FROM downloaditem")
     suspend fun countPendingItems(): Int
 
+    @Query("SELECT * FROM downloaditem")
+    suspend fun getAllDownloadItems(): List<DownloadItem>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertDownload(download: Download)
 

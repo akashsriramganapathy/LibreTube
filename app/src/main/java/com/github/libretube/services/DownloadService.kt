@@ -275,10 +275,14 @@ class DownloadService : LifecycleService() {
         }
 
         // start the next download if there are any remaining ones enqueued
-        val nextDownload =
-            downloadFlow.firstOrNull { (_, status) -> status == DownloadStatus.Paused }
+        val nextDownload = withContext(Dispatchers.IO) {
+            Database.downloadDao().getAllDownloadItems().firstOrNull {
+                !downloadQueue[it.id] && (it.path.fileSize() < it.downloadSize || it.downloadSize == -1L)
+            }
+        }
+
         if (nextDownload != null) {
-            resume(nextDownload.first)
+            resume(nextDownload.id)
         } else {
             stopServiceIfDone()
         }
