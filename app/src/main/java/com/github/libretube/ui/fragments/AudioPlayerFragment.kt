@@ -164,6 +164,10 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         _binding = FragmentAudioPlayerBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
+        // Intercept touches to prevent pass-through to underlying fragments
+        binding.audioPlayerContainer.setOnClickListener { }
+        binding.audioPlayerContainer.setOnLongClickListener { true }
+
         // manually apply additional padding for edge-to-edge compatibility
         // manually apply additional padding for edge-to-edge compatibility
         activity.getSystemInsets()?.let { systemBars ->
