@@ -22,6 +22,7 @@ class UpdateAvailableDialog : DialogFragment() {
     private var changelog: String? = null
     private var releaseUrl: String? = null
     private var updateName: String? = null
+    private var runNumber: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,13 +30,15 @@ class UpdateAvailableDialog : DialogFragment() {
             changelog = getString(appUpdateChangelog)
             releaseUrl = getString(appUpdateURL)
             updateName = getString("update_name")
+            runNumber = getString("run_number")
         }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val message = "New Version: $updateName\nRun Cleaned: $runNumber\n\n$changelog"
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.update_available)
-            .setMessage(changelog)
+            .setMessage(message)
             .setPositiveButton(R.string.update) { _, _ ->
                 installUpdate()
             }
