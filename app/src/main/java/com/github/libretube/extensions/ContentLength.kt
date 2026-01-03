@@ -9,6 +9,9 @@ suspend fun URL.getContentLength(): Long? {
     try {
         return withContext(Dispatchers.IO) {
             val connection = openConnection() as HttpURLConnection
+            connection.connectTimeout = 15000
+            connection.readTimeout = 15000
+            connection.requestMethod = "HEAD"
             connection.setRequestProperty("Range", "bytes=0-")
 
             val value = connection.getHeaderField("content-length")

@@ -208,51 +208,48 @@
 
         </FrameLayout>
 
-        <com.google.android.material.button.MaterialButtonGroup
+        <LinearLayout
             android:id="@+id/buttonGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginHorizontal="50dp"
-            android:gravity="center_horizontal"
-            android:paddingVertical="30dp"
-            android:spacing="0dp">
+            android:layout_marginHorizontal="30dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingVertical="20dp">
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/rewindBTN"
-                style="?materialIconButtonFilledStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="2"
-                android:gravity="center"
+                style="?attr/materialIconButtonFilledStyle"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="16dp"
                 app:icon="@drawable/ic_rewind_md"
                 app:iconGravity="textStart"
-                app:iconSize="40dp" />
+                app:iconPadding="0dp"
+                app:iconSize="32dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/play_pause"
                 style="?attr/materialIconButtonFilledStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:gravity="center"
+                android:layout_width="84dp"
+                android:layout_height="84dp"
                 app:icon="@drawable/ic_pause"
                 app:iconGravity="textStart"
-                app:iconSize="55dp" />
+                app:iconPadding="0dp"
+                app:iconSize="40dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/forwardBTN"
-                style="?materialIconButtonFilledStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="2"
-                android:gravity="center"
+                style="?attr/materialIconButtonFilledStyle"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="16dp"
                 app:icon="@drawable/ic_forward_md"
                 app:iconGravity="textStart"
-                app:iconSize="40dp" />
+                app:iconPadding="0dp"
+                app:iconSize="32dp" />
 
-        </com.google.android.material.button.MaterialButtonGroup>
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -266,38 +263,38 @@
                 android:layout_height="wrap_content"
                 android:scrollbars="none">
 
-                <com.google.android.material.button.MaterialButtonGroup
+                <LinearLayout
                     android:id="@+id/utilsButtonGroup"
-                    style="@style/Widget.Material3.MaterialButtonGroup.Connected"
                     android:layout_width="wrap_content"
-                    android:layout_height="50dp"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
-                    android:gravity="center_horizontal">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/open_queue"
-                        style="?materialIconButtonOutlinedStyle"
+                        style="?attr/materialIconButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_queue" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/open_chapters"
-                        style="?materialIconButtonOutlinedStyle"
+                        style="?attr/materialIconButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_frame" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/playback_options"
-                        style="?materialIconButtonOutlinedStyle"
+                        style="?attr/materialIconButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_speed" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/sleep_timer"
-                        style="?materialIconButtonOutlinedStyle"
+                        style="?attr/materialIconButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_sleep" />
@@ -305,19 +302,19 @@
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/toggle_video"
-                        style="?materialIconButtonOutlinedStyle"
+                        style="?attr/materialIconButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_movie" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/open_video"
-                        style="?materialIconButtonOutlinedStyle"
+                        style="?attr/materialIconButtonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         app:icon="@drawable/ic_video" />
 
-                </com.google.android.material.button.MaterialButtonGroup>
+                </LinearLayout>
 
             </HorizontalScrollView>
 

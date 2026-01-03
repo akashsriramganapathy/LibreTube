@@ -72,6 +72,7 @@ import okio.source
 import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardOpenOption
 import java.time.Duration
@@ -232,7 +233,7 @@ class DownloadService : LifecycleService() {
             val notificationBuilder = getNotificationBuilder(item)
             setResumeNotification(notificationBuilder, item)
 
-            var totalRead = item.path.fileSize()
+            var totalRead = if (Files.exists(item.path)) item.path.fileSize() else 0L
             val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: return))
 
             // only fetch the content length if it's not been returned by the API
@@ -246,7 +247,7 @@ class DownloadService : LifecycleService() {
             }
 
             var lastLoopTotalRead = totalRead
-            while (totalRead < item.downloadSize) {
+            while (totalRead < item.downloadSize || item.downloadSize == -1L) {
                 try {
                     totalRead = progressDownload(item, url, totalRead, notificationBuilder)
                     if (totalRead == lastLoopTotalRead) {
@@ -390,11 +391,13 @@ class DownloadService : LifecycleService() {
         alreadyRead: Long,
         readLimit: Long?
     ): ResponseBody? {
-        val limit = readLimit?.let {
+        val limit = if (readLimit != null && readLimit > 0) {
             // generate a random byte distance to make it more difficult to fingerprint
             val nextBytesToReadSize = (BYTES_PER_REQUEST_MIN..BYTES_PER_REQUEST_MAX).random()
-            min(readLimit, alreadyRead + nextBytesToReadSize)
-        }?.toString().orEmpty()
+            min(readLimit, alreadyRead + nextBytesToReadSize).toString()
+        } else {
+            ""
+        }
 
         val request = Request.Builder()
             .url(url)
