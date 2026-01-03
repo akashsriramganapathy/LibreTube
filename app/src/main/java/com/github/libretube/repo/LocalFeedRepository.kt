@@ -126,7 +126,7 @@ class LocalFeedRepository : FeedRepository {
         val feedInfo = FeedInfo.getInfo(channelUrl)
         val feedInfoItems = feedInfo.relatedItems.associateBy { it.url }
 
-        val mostRecentChannelVideo = feedInfo.relatedItems.maxBy {
+        val mostRecentChannelVideo = feedInfo.relatedItems.maxByOrNull {
             it.uploadDate?.offsetDateTime()?.toInstant()?.toEpochMilli() ?: 0
         } ?: return Pair(null, emptyList())
 
