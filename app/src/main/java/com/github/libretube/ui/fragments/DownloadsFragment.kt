@@ -215,7 +215,30 @@ class DownloadsFragmentPage : DynamicLayoutManagerFragment(R.layout.fragment_dow
             }
 
             val downloads = withContext(Dispatchers.IO) {
-                Database.downloadDao().getAll()
+                val dao = Database.downloadDao()
+                val allDownloads = dao.getAll()
+                val cleanupList = mutableListOf<DownloadWithItems>()
+
+                allDownloads.forEach { item ->
+                    // Logic: If thumbnail OR any media file is missing, the download is broken.
+                    // User requested: "if audio is not there delete thumbnail same for thumbnail too"
+                    val thumbnailMissing = item.download.thumbnailPath != null && !Files.exists(item.download.thumbnailPath)
+                    val mediaMissing = item.downloadItems.isEmpty() || item.downloadItems.any { !Files.exists(it.path) }
+
+                    if (thumbnailMissing || mediaMissing) {
+                        cleanupList.add(item)
+                    }
+                }
+
+                cleanupList.forEach {
+                    DownloadHelper.deleteDownloadIncludingFiles(it)
+                }
+
+                if (cleanupList.isNotEmpty()) {
+                    dao.getAll()
+                } else {
+                    allDownloads
+                }
             }.let { downloads ->
                 if (downloadTab != null) downloads.filterByTab(downloadTab!!)
                 else downloads.filter { playlistItems.orEmpty().contains(it.download.videoId) }
