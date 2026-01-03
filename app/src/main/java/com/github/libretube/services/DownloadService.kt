@@ -487,9 +487,18 @@ class DownloadService : LifecycleService() {
             return
         }
 
+        // Optimistically mark as running to prevent other threads/jobs from picking it up immediately
+        downloadQueue[id] = true
+
         lifecycleScope.launch(coroutineContext) {
-            val file = Database.downloadDao().findDownloadItemById(id) ?: return@launch
-            downloadFile(file)
+            val file = Database.downloadDao().findDownloadItemById(id)
+
+            if (file != null) {
+                downloadFile(file)
+            } else {
+                // Revert flag if file not found
+                downloadQueue[id] = false
+            }
         }
     }
 

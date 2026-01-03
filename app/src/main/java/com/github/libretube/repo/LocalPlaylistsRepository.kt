@@ -43,7 +43,17 @@ class LocalPlaylistsRepository: PlaylistRepository {
             .first { it.playlist.id.toString() == playlistId }
 
         for (video in videos) {
-            val localPlaylistItem = video.toLocalPlaylistItem(playlistId)
+            var localPlaylistItem = video.toLocalPlaylistItem(playlistId)
+
+            if (localPlaylistItem.thumbnailUrl.isNullOrEmpty()) {
+                runCatching {
+                    val streamInfo = MediaServiceRepository.instance.getStreams(localPlaylistItem.videoId)
+                    if (!streamInfo.thumbnailUrl.isNullOrEmpty()) {
+                        localPlaylistItem = localPlaylistItem.copy(thumbnailUrl = streamInfo.thumbnailUrl)
+                    }
+                }
+            }
+
             // avoid duplicated videos in a playlist
             DatabaseHolder.Database.localPlaylistsDao()
                 .deletePlaylistItemsByVideoId(playlistId, localPlaylistItem.videoId)
