@@ -219,11 +219,7 @@ class BackupRestoreSettings : BasePreferenceFragment() {
                 }
             }
         }
-        val advancedBackup = findPreference<Preference>("backup")
-        advancedBackup?.setOnPreferenceClickListener {
-            BackupDialog().show(childFragmentManager, null)
-            true
-        }
+
 
         val restoreAdvancedBackup = findPreference<Preference>("restore")
         restoreAdvancedBackup?.setOnPreferenceClickListener {
