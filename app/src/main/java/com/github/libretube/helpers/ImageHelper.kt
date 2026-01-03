@@ -27,7 +27,7 @@ import java.io.File
 import java.nio.file.Path
 
 object ImageHelper {
-    private lateinit var imageLoader: ImageLoader
+    lateinit var imageLoader: ImageLoader
 
     private val Context.coilFile get() = cacheDir.resolve("coil")
     private const val HTTP_SCHEME = "http"

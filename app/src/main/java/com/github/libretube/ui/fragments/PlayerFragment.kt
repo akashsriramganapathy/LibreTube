@@ -645,60 +645,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player), OnlinePlayerOptions {
                     mainActivity.clearSearchViewFocus()
                 } else if (currentId == transitionEndId) {
                     commonPlayerViewModel.isMiniPlayerVisible.value = true
-                    lifecycleScope.launch {
-                        val binding = _binding ?: return@launch
 
-                        // Progressive Loading for DeArrow
-                        if (thumbnailUri.toString().contains("dearrow")) {
-                            val time = thumbnailUri.getQueryParameter("time")?.toFloatOrNull()
-                            // Retrieve streams safely
-                            val currentStreams = if (::streams.isInitialized) streams else {
-                                playerController?.mediaMetadata?.extras?.getString(IntentData.streams)?.let {
-                                    try { JsonHelper.json.decodeFromString<Streams>(it) } catch (e: Exception) { null }
-                                }
-                            }
-
-                            if (time != null && currentStreams != null) {
-                                val sbParams = StoryboardHelper.getStoryboardUrlAndCrop(currentStreams.previewFrames, time)
-
-                                if (sbParams != null) {
-                                    val (url, rect) = sbParams
-                                    val request = coil3.request.ImageRequest.Builder(requireContext())
-                                        .data(url)
-                                        .transformations(StoryboardTransformation(rect))
-                                        .size(rect.width(), rect.height())
-                                        .build()
-
-                                    val result = ImageHelper.imageLoader(requireContext()).execute(request)
-                                    val placeholderBitmap = (result.image as? coil3.BitmapImage)?.bitmap
-
-                                    if (placeholderBitmap != null) {
-                                        binding.thumbnail.setImageBitmap(placeholderBitmap)
-                                        // binding.miniPlayerThumbnail? PlayerFragment might not have miniPlayerThumbnail in its layout?
-                                        // Let's check layour or binding properties.
-                                        // Step 255 view line 522: binding.miniPlayerThumbnail.setImageBitmap(bitmap)
-                                        // So it exists.
-                                        binding.miniPlayerThumbnail.setImageBitmap(placeholderBitmap)
-
-                                        binding.thumbnail.isVisible = !isInlineVideoEnabled
-                                        binding.progress.isVisible = false
-                                    }
-                                }
-                            }
-                        }
-
-                        val bitmap = ImageHelper.getImage(requireContext(), thumbnailUri)
-                        binding.thumbnail.setImageBitmap(bitmap)
-                        binding.miniPlayerThumbnail.setImageBitmap(bitmap)
-
-                        // Only show thumbnail if inline video is NOT enabled
-                        if (!isInlineVideoEnabled) {
-                            binding.thumbnail.isVisible = true
-                        } else {
-                            Log.d(TAG(), "updateThumbnailAsync: Kept thumbnail hidden because inline video is enabled")
-                        }
-                        binding.progress.isGone = true
-                    }
                     // disable captions temporarily
                     updateCurrentSubtitle(null)
                     disableController()

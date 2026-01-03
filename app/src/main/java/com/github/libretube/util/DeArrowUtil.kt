@@ -8,11 +8,13 @@ import com.github.libretube.constants.PreferenceKeys
 import com.github.libretube.helpers.PreferenceHelper
 
 object DeArrowUtil {
+    private const val DEARROW_THUMBNAIL_URL = "https://dearrow-thumb.ajay.app/api/v1/getThumbnail"
+
     private fun extractTitleAndThumbnail(content: DeArrowContent, videoId: String): Pair<String?, String?> {
         val title = content.titles.firstOrNull { it.votes >= 0 || it.locked }?.title
         
         val thumbnail = if (content.randomTime != null) {
-            "${MediaServiceRepository.DEARROW_THUMBNAIL_URL}?videoID=$videoId&time=${content.randomTime}"
+            "${DEARROW_THUMBNAIL_URL}?videoID=$videoId&time=${content.randomTime}"
         } else {
             content.thumbnails.firstOrNull {
                 it.thumbnail != null && !it.original && (it.votes >= 0 || it.locked)

@@ -53,6 +53,7 @@ import com.github.libretube.util.StoryboardHelper
 import com.github.libretube.util.StoryboardTransformation
 import coil3.request.ImageRequest
 import coil3.BitmapImage
+import coil3.request.transformations
 import com.github.libretube.helpers.AudioHelper
 import com.github.libretube.helpers.BackgroundHelper
 import com.github.libretube.helpers.ClipboardHelper
@@ -540,7 +541,7 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
                             .size(rect.width(), rect.height())
                             .build()
                             
-                        val result = ImageHelper.imageLoader(requireContext()).execute(request)
+                        val result = ImageHelper.imageLoader.execute(request)
                         val placeholderBitmap = (result.image as? coil3.BitmapImage)?.bitmap
                         
                         if (placeholderBitmap != null) {
