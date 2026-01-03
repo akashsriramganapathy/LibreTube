@@ -228,78 +228,80 @@ class DownloadService : LifecycleService() {
      */
     private suspend fun downloadFile(item: DownloadItem) {
         downloadQueue[item.id] = true
-        val notificationBuilder = getNotificationBuilder(item)
-        setResumeNotification(notificationBuilder, item)
+        try {
+            val notificationBuilder = getNotificationBuilder(item)
+            setResumeNotification(notificationBuilder, item)
 
-        var totalRead = item.path.fileSize()
-        val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: return))
+            var totalRead = item.path.fileSize()
+            val url = URL(ProxyHelper.rewriteUrlUsingProxyPreference(item.url ?: return))
 
-        // only fetch the content length if it's not been returned by the API
-        Log.d(TAG(), "Starting download for ${item.fileName}. Initial size=${item.downloadSize}, URL=$url")
-        if (item.downloadSize <= 0L) {
-            url.getContentLength()?.let { size ->
-                Log.d(TAG(), "Fetched content length: $size")
-                item.downloadSize = size
-                Database.downloadDao().updateDownloadItem(item)
-            } ?: Log.e(TAG(), "Failed to fetch content length for $url")
-        }
+            // only fetch the content length if it's not been returned by the API
+            Log.d(TAG(), "Starting download for ${item.fileName}. Initial size=${item.downloadSize}, URL=$url")
+            if (item.downloadSize <= 0L) {
+                url.getContentLength()?.let { size ->
+                    Log.d(TAG(), "Fetched content length: $size")
+                    item.downloadSize = size
+                    Database.downloadDao().updateDownloadItem(item)
+                } ?: Log.e(TAG(), "Failed to fetch content length for $url")
+            }
 
-        var lastLoopTotalRead = totalRead
-        while (totalRead < item.downloadSize) {
-            try {
-                totalRead = progressDownload(item, url, totalRead, notificationBuilder)
-                if (totalRead == lastLoopTotalRead) {
-                    // No progress made (likely connection error), break to avoid infinite loop
-                    Log.e(TAG(), "No progress made for ${item.fileName}, breaking loop.")
+            var lastLoopTotalRead = totalRead
+            while (totalRead < item.downloadSize) {
+                try {
+                    totalRead = progressDownload(item, url, totalRead, notificationBuilder)
+                    if (totalRead == lastLoopTotalRead) {
+                        // No progress made (likely connection error), break to avoid infinite loop
+                        Log.e(TAG(), "No progress made for ${item.fileName}, breaking loop.")
+                        break
+                    }
+                    lastLoopTotalRead = totalRead
+                } catch (_: CancellationException) {
+                    break
+                } catch (e: Exception) {
+                    toastFromMainThread("${getString(R.string.download)}: ${e.message}")
+                    Log.e(this@DownloadService::class.java.name, e.stackTraceToString())
+                    _downloadFlow.emit(item.id to DownloadStatus.Error(e.message.toString(), e))
                     break
                 }
-                lastLoopTotalRead = totalRead
-            } catch (_: CancellationException) {
-                break
-            } catch (e: Exception) {
-                toastFromMainThread("${getString(R.string.download)}: ${e.message}")
-                Log.e(this@DownloadService::class.java.name, e.stackTraceToString())
-                _downloadFlow.emit(item.id to DownloadStatus.Error(e.message.toString(), e))
-                break
             }
-        }
-        
-        Log.d(TAG(), "Download loop finished. totalRead=$totalRead, downloadSize=${item.downloadSize}")
+            
+            Log.d(TAG(), "Download loop finished. totalRead=$totalRead, downloadSize=${item.downloadSize}")
 
-        val completed = totalRead >= item.downloadSize
-        if (completed) {
-            _downloadFlow.emit(item.id to DownloadStatus.Completed)
-        } else {
-            _downloadFlow.emit(item.id to DownloadStatus.Paused)
-        }
-
-        setPauseNotification(notificationBuilder, item, completed)
-
-        downloadQueue[item.id] = false
-
-        if (downloadFlow.firstOrNull { it.first == item.id }?.second == DownloadStatus.Stopped) {
-            downloadQueue.remove(item.id, false)
-        }
-
-        // start the next download if there are any remaining ones enqueued
-        val nextDownload = withContext(Dispatchers.IO) {
-            // Exclude current item.id to prevent retrying the same failed item immediately (round-robin)
-            Database.downloadDao().getAllDownloadItems().firstOrNull {
-                it.id != item.id && !downloadQueue[it.id] && (it.path.fileSize() < it.downloadSize || it.downloadSize == -1L)
+            val completed = totalRead >= item.downloadSize
+            if (completed) {
+                _downloadFlow.emit(item.id to DownloadStatus.Completed)
+            } else {
+                _downloadFlow.emit(item.id to DownloadStatus.Paused)
             }
-        }
 
-        if (nextDownload != null) {
-            resume(nextDownload.id)
-        } else {
-            stopServiceIfDone()
-        }
-        
-        lifecycleScope.launch(coroutineContext) {
+            setPauseNotification(notificationBuilder, item, completed)
+        } finally {
+            downloadQueue[item.id] = false
+
+            if (downloadFlow.firstOrNull { it.first == item.id }?.second == DownloadStatus.Stopped) {
+                downloadQueue.remove(item.id, false)
+            }
+
+            // start the next download if there are any remaining ones enqueued
+            val nextDownload = withContext(Dispatchers.IO) {
+                // Exclude current item.id to prevent retrying the same failed item immediately (round-robin)
+                Database.downloadDao().getAllDownloadItems().firstOrNull {
+                    it.id != item.id && !downloadQueue[it.id] && (it.path.fileSize() < it.downloadSize || it.downloadSize == -1L)
+                }
+            }
+
+            if (nextDownload != null) {
+                resume(nextDownload.id)
+            } else {
+                stopServiceIfDone()
+            }
+            
+            lifecycleScope.launch(coroutineContext) {
+                updateForegroundNotification()
+            }
+            
             updateForegroundNotification()
         }
-        
-        updateForegroundNotification()
     }
 
     private suspend fun progressDownload(
