@@ -46,15 +46,6 @@ class UpdateAvailableDialog : DialogFragment() {
     }
 
     private fun installUpdate() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            if (!requireContext().packageManager.canRequestPackageInstalls()) {
-                android.widget.Toast.makeText(requireContext(), R.string.toast_install_permission_required, android.widget.Toast.LENGTH_LONG).show()
-                startActivity(Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                    data = ("package:" + requireContext().packageName).toUri()
-                })
-                return
-            }
-        }
 
         val appContext = requireContext().applicationContext
         val url = "https://github.com/akashsriramganapathy/LibreTube/releases/download/nightly/LibreTube-Nightly.apk"
