@@ -640,22 +640,20 @@ class DownloadService : LifecycleService() {
         item: DownloadItem,
         isCompleted: Boolean = false
     ) {
+        if (isCompleted) {
+            notificationManager.cancel(item.getNotificationId())
+            return
+        }
+
         notificationBuilder
             .setProgress(0, 0, false)
             .setOngoing(false)
             .clearActions()
+            .setSmallIcon(R.drawable.ic_pause)
+            .setContentText(getString(R.string.download_paused))
+            .addAction(getResumeAction(item.id))
+            .addAction(getStopAction(item.id))
 
-        if (isCompleted) {
-            notificationBuilder
-                .setSmallIcon(R.drawable.ic_done)
-                .setContentText(getString(R.string.download_completed))
-        } else {
-            notificationBuilder
-                .setSmallIcon(R.drawable.ic_pause)
-                .setContentText(getString(R.string.download_paused))
-                .addAction(getResumeAction(item.id))
-                .addAction(getStopAction(item.id))
-        }
         notificationManager.notify(item.getNotificationId(), notificationBuilder.build())
     }
 
