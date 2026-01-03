@@ -243,7 +243,14 @@ class BackupRestoreSettings : BasePreferenceFragment() {
         // Auto Backup
         val autoBackupEnabled = findPreference<androidx.preference.SwitchPreferenceCompat>(PreferenceKeys.AUTO_BACKUP_ENABLED)
         autoBackupEnabled?.setOnPreferenceChangeListener { _, newValue ->
-            PreferenceHelper.putBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, newValue as Boolean)
+            val isChecked = newValue as Boolean
+            if (isChecked) {
+                val path = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
+                if (path.isEmpty()) {
+                    requireContext().toastFromMainThread(R.string.auto_backup_no_path_selected)
+                }
+            }
+            PreferenceHelper.putBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, isChecked)
             AutoBackupHelper.scheduleBackup(requireContext())
             true
         }
@@ -265,10 +272,15 @@ class BackupRestoreSettings : BasePreferenceFragment() {
 
         val autoBackupTime = findPreference<Preference>(PreferenceKeys.AUTO_BACKUP_TIME)
         autoBackupTime?.setOnPreferenceClickListener {
-            val currentTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00")
+            val now = java.util.Calendar.getInstance()
+            val currentHour = now.get(java.util.Calendar.HOUR_OF_DAY)
+            val currentMinute = now.get(java.util.Calendar.MINUTE)
+            val defaultTime = String.format("%02d:%02d", currentHour, currentMinute)
+
+            val currentTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, defaultTime)
             val parts = currentTime.split(":")
-            val hour = parts.getOrNull(0)?.toIntOrNull() ?: 2
-            val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: currentHour
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: currentMinute
 
             android.app.TimePickerDialog(requireContext(), { _, selectedHour, selectedMinute ->
                 val newTime = String.format("%02d:%02d", selectedHour, selectedMinute)
@@ -278,7 +290,10 @@ class BackupRestoreSettings : BasePreferenceFragment() {
             }, hour, minute, android.text.format.DateFormat.is24HourFormat(requireContext())).show()
             true
         }
-        updateBackupTimeSummary(PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00"))
+        
+        val initialNow = java.util.Calendar.getInstance()
+        val initialDefaultTime = String.format("%02d:%02d", initialNow.get(java.util.Calendar.HOUR_OF_DAY), initialNow.get(java.util.Calendar.MINUTE))
+        updateBackupTimeSummary(PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, initialDefaultTime))
 
         val autoBackupMaxKeep = findPreference<androidx.preference.ListPreference>(PreferenceKeys.AUTO_BACKUP_MAX_KEEP)
         autoBackupMaxKeep?.setOnPreferenceChangeListener { _, newValue ->

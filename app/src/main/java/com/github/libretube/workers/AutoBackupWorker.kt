@@ -24,36 +24,43 @@ class AutoBackupWorker(
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun doWork(): Result {
         val context = applicationContext
+        Log.d("AutoBackupWorker", "Starting auto backup worker")
         
         // 1. Check if enabled
         if (!PreferenceHelper.getBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, false)) {
+            Log.d("AutoBackupWorker", "Auto backup is disabled in settings")
             return Result.success()
         }
 
         // 2. Get Path
         val pathString = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
         if (pathString.isEmpty()) {
-            Log.e(TAG(), "Auto backup path not set")
+            Log.e("AutoBackupWorker", "Auto backup path is empty")
             return Result.failure()
         }
 
-        val treeUri = Uri.parse(pathString)
-
-        // 3. Verify permissions (basic check)
-        try {
-            context.contentResolver.takePersistableUriPermission(
-                treeUri,
-                android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION or android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
+        val treeUri = try {
+            Uri.parse(pathString)
         } catch (e: Exception) {
-             Log.e(TAG(), "Permission missing for backup path: $e")
-             // Persistable permission might be lost or not taken yet.
-             // We continue and fail at file creation if so.
+            Log.e("AutoBackupWorker", "Failed to parse backup path URI: $pathString", e)
+            return Result.failure()
         }
 
-        val documentDir = DocumentFile.fromTreeUri(context, treeUri)
-        if (documentDir == null || !documentDir.canWrite()) {
-            Log.e(TAG(), "Cannot write to backup directory")
+        // 3. Verify permissions and access
+        val documentDir = try {
+             DocumentFile.fromTreeUri(context, treeUri)
+        } catch (e: Exception) {
+            Log.e("AutoBackupWorker", "Failed to get DocumentFile from URI", e)
+            null
+        }
+
+        if (documentDir == null || !documentDir.exists()) {
+            Log.e("AutoBackupWorker", "Backup directory does not exist or is inaccessible: $pathString")
+            return Result.failure()
+        }
+
+        if (!documentDir.canWrite()) {
+            Log.e("AutoBackupWorker", "Backup directory is not writeable: ${documentDir.uri}")
             return Result.failure()
         }
 
@@ -73,7 +80,7 @@ class AutoBackupWorker(
         val backupFile = try {
             BackupHelper.createBackup(options)
         } catch (e: Exception) {
-            Log.e(TAG(), "Failed to create backup data: $e")
+            Log.e("AutoBackupWorker", "Failed to create backup data object", e)
             return Result.retry()
         }
 
@@ -81,9 +88,16 @@ class AutoBackupWorker(
         val timestamp = TextUtils.getFileSafeTimeStampNow()
         val filename = "libretube-autobackup-${timestamp}.json"
         
-        val newFile = documentDir.createFile("application/json", filename)
+        Log.d("AutoBackupWorker", "Creating backup file: $filename")
+        val newFile = try {
+            documentDir.createFile("application/json", filename)
+        } catch (e: Exception) {
+            Log.e("AutoBackupWorker", "Exception while creating backup file", e)
+            null
+        }
+
         if (newFile == null) {
-             Log.e(TAG(), "Failed to create backup file")
+             Log.e("AutoBackupWorker", "Failed to create backup file (createFile returned null)")
              return Result.failure()
         }
 
@@ -92,14 +106,18 @@ class AutoBackupWorker(
             context.contentResolver.openOutputStream(newFile.uri)?.use { outputStream ->
                 JsonHelper.json.encodeToStream(backupFile, outputStream)
             }
-            Log.i(TAG(), "Auto backup successful: $filename")
+            Log.i("AutoBackupWorker", "Auto backup successful: $filename")
             
             // 7. Prune old backups
-            pruneOldBackups(documentDir)
+            try {
+                pruneOldBackups(documentDir)
+            } catch (e: Exception) {
+                Log.e("AutoBackupWorker", "Pruning failed but backup was successful", e)
+            }
             
             Result.success()
         } catch (e: Exception) {
-            Log.e(TAG(), "Error writing backup file: $e")
+            Log.e("AutoBackupWorker", "Error writing backup data to file", e)
             Result.failure()
         }
     }

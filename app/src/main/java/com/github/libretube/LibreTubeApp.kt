@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.ExistingPeriodicWorkPolicy
+import com.github.libretube.helpers.AutoBackupHelper
 import com.github.libretube.helpers.ImageHelper
 import com.github.libretube.helpers.NewPipeExtractorInstance
 import com.github.libretube.helpers.NotificationHelper
@@ -29,6 +30,11 @@ class LibreTubeApp : Application() {
          */
         PreferenceHelper.initialize(applicationContext)
         PreferenceHelper.migrate()
+
+        /**
+         * Schedule auto backup
+         */
+        AutoBackupHelper.scheduleBackup(this)
 
         /**
          * Set the api and the auth api url

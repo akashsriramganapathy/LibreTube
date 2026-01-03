@@ -1,6 +1,7 @@
 package com.github.libretube.helpers
 
 import android.content.Context
+import android.util.Log
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -16,16 +17,18 @@ object AutoBackupHelper {
 
         val enabled = PreferenceHelper.getBoolean(PreferenceKeys.AUTO_BACKUP_ENABLED, false)
         if (!enabled) {
+            Log.d("AutoBackupHelper", "Auto backup disabled, cancelling work")
             workManager.cancelUniqueWork(WORK_TAG)
             return
         }
 
-        // Get interval in hours? Or days?
-        // Let's assume the preference stores HOURS for simplicity, or an index mapped to hours.
-        // User said "schedule time".
-        // If we want specific *time* (e.g. 2:00 AM), we need to calculate initial delay.
-        // For now, let's implement interval-based (e.g. Daily = 24h).
-        // Let's interpret AUTO_BACKUP_INTERVAL as "Hours".
+        val pathString = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_PATH, "")
+        if (pathString.isEmpty()) {
+            Log.w("AutoBackupHelper", "Auto backup enabled but path is not set, cancelling work")
+            workManager.cancelUniqueWork(WORK_TAG)
+            return
+        }
+
         var intervalHours = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_INTERVAL, "24").toLongOrNull() ?: 24L
         if (intervalHours < 1) intervalHours = 24
 
@@ -34,12 +37,16 @@ object AutoBackupHelper {
 
         // Calculate initial delay if interval is daily or more to align with preferred time
         if (intervalHours >= 24) {
-            val preferredTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, "02:00")
-            val parts = preferredTime.split(":")
-            val hour = parts.getOrNull(0)?.toIntOrNull() ?: 2
-            val minute = parts.getOrNull(1)?.toIntOrNull() ?: 0
-
             val now = java.util.Calendar.getInstance()
+            val currentHour = now.get(java.util.Calendar.HOUR_OF_DAY)
+            val currentMinute = now.get(java.util.Calendar.MINUTE)
+            val defaultTime = String.format("%02d:%02d", currentHour, currentMinute)
+
+            val preferredTime = PreferenceHelper.getString(PreferenceKeys.AUTO_BACKUP_TIME, defaultTime)
+            val parts = preferredTime.split(":")
+            val hour = parts.getOrNull(0)?.toIntOrNull() ?: currentHour
+            val minute = parts.getOrNull(1)?.toIntOrNull() ?: currentMinute
+
             val target = java.util.Calendar.getInstance().apply {
                 set(java.util.Calendar.HOUR_OF_DAY, hour)
                 set(java.util.Calendar.MINUTE, minute)
@@ -52,12 +59,13 @@ object AutoBackupHelper {
             }
 
             val initialDelayMillis = target.timeInMillis - now.timeInMillis
+            Log.d("AutoBackupHelper", "Scheduling backup for $preferredTime (initial delay: ${initialDelayMillis / 1000}s)")
             builder.setInitialDelay(initialDelayMillis, TimeUnit.MILLISECONDS)
         }
 
         val request = builder.build()
         
-        // Use UPDATE so if parameters change (like interval or time), it reschedules.
+        // Use KEEP or UPDATE? If we want to CHANGE the time/interval, we must use UPDATE.
         workManager.enqueueUniquePeriodicWork(
             WORK_TAG,
             ExistingPeriodicWorkPolicy.UPDATE,
