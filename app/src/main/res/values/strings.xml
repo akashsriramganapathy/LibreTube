@@ -601,5 +601,5 @@
     <string name="view_logs">View Logs</string>
     <string name="clear_logs">Clear Logs</string>
     <string name="action_close">Close</string>
-    <string name="downloading_count">Remaining: %d</string>
+    <string name="downloading_count">Downloading (%d left)</string>
 </resources>

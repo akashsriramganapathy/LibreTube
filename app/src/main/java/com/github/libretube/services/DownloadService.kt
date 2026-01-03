@@ -304,7 +304,8 @@ class DownloadService : LifecycleService() {
         val sink = item.path.sink(StandardOpenOption.APPEND).buffer()
         val sourceByte = source.byteStream().source()
 
-        var lastTime = System.currentTimeMillis() / 1000
+        var lastTime = System.currentTimeMillis()
+        var lastTotalRead = totalRead
         var lastRead = 0L
 
         // Check if downloading is still active and read next bytes.
@@ -321,12 +322,15 @@ class DownloadService : LifecycleService() {
                     item.downloadSize
                 )
             )
+            val currentTime = System.currentTimeMillis()
             if (item.downloadSize != -1L &&
-                System.currentTimeMillis() / 1000 > lastTime
+                currentTime - lastTime > 1000
             ) {
-                updateNotification(notificationBuilder, item, totalRead.toInt())
+                val speed = ((totalRead - lastTotalRead) * 1000) / (currentTime - lastTime)
+                updateNotification(notificationBuilder, item, totalRead.toInt(), speed)
 
-                lastTime = System.currentTimeMillis() / 1000
+                lastTime = currentTime
+                lastTotalRead = totalRead
             }
         }
 
@@ -343,13 +347,15 @@ class DownloadService : LifecycleService() {
     private fun updateNotification(
         notificationBuilder: Builder,
         item: DownloadItem,
-        totalRead: Int
+        totalRead: Int,
+        speed: Long
     ) {
+        val percentage = (totalRead.toFloat() / item.downloadSize.toFloat() * 100).toInt()
+        val speedStr = speed.formatAsFileSize() + "/s"
+        val progressStr = totalRead.formatAsFileSize() + " / " + item.downloadSize.formatAsFileSize()
+        
         notificationBuilder
-            .setContentText(
-                totalRead.formatAsFileSize() + " / " +
-                        item.downloadSize.formatAsFileSize()
-            )
+            .setContentText("$percentage% • $speedStr • $progressStr")
             .setProgress(
                 item.downloadSize.toInt(),
                 totalRead,
@@ -580,7 +586,7 @@ class DownloadService : LifecycleService() {
             .getActivity(this@DownloadService, 0, intent, FLAG_CANCEL_CURRENT, false)
 
         return Builder(this, DOWNLOAD_CHANNEL_NAME)
-            .setContentTitle("[${item.type}] ${item.fileName}")
+            .setContentTitle(item.fileName)
             .setProgress(0, 0, true)
             .setOngoing(true)
             .setContentIntent(activityIntent)
