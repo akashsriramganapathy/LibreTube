@@ -92,7 +92,7 @@ object BackupHelper {
         val backupFile = try {
             Log.d(TAG(), "Attempting safe restore of backup...")
             context.contentResolver.openInputStream(uri)?.use {
-                JsonHelper.json.decodeFromStream<BackupFile>(it)
+                JsonHelper.json.decodeFromStream(BackupFile.serializer(), it)
             }
         } catch (e: Exception) {
             Log.e(TAG(), "Error while reading backup: $e")
