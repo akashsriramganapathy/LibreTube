@@ -39,8 +39,7 @@ class LocalPlaylistsRepository: PlaylistRepository {
     }
 
     override suspend fun addToPlaylist(playlistId: String, vararg videos: StreamItem): Boolean {
-        val localPlaylist = DatabaseHolder.Database.localPlaylistsDao().getAll()
-            .first { it.playlist.id.toString() == playlistId }
+
 
         for (video in videos) {
             var localPlaylistItem = video.toLocalPlaylistItem(playlistId)
@@ -60,14 +59,9 @@ class LocalPlaylistsRepository: PlaylistRepository {
 
             // add the new video to the database
             DatabaseHolder.Database.localPlaylistsDao().addPlaylistVideo(localPlaylistItem)
-
-            val playlist = localPlaylist.playlist
-            // Always set the new playlist thumbnail URL to the last added video
-            if (!localPlaylistItem.thumbnailUrl.isNullOrEmpty()) {
-                playlist.thumbnailUrl = localPlaylistItem.thumbnailUrl!!
-                DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(playlist)
-            }
         }
+        
+        updatePlaylistThumbnail(playlistId)
 
         return true
     }
@@ -111,17 +105,28 @@ class LocalPlaylistsRepository: PlaylistRepository {
     override suspend fun removeFromPlaylist(playlistId: String, index: Int): Boolean {
         val transaction = DatabaseHolder.Database.localPlaylistsDao().getAll()
             .first { it.playlist.id.toString() == playlistId }
-        DatabaseHolder.Database.localPlaylistsDao().removePlaylistVideo(
-            transaction.videos[index]
-        )
-        // set a new playlist thumbnail if the last video got removed
-        if (index == transaction.videos.lastIndex) {
-            transaction.playlist.thumbnailUrl =
-                transaction.videos.getOrNull(index - 1)?.thumbnailUrl.orEmpty()
-            DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(transaction.playlist)
-        }
+        val videoToRemove = transaction.videos.getOrNull(index) ?: return false
+        
+        DatabaseHolder.Database.localPlaylistsDao().removePlaylistVideo(videoToRemove)
+        
+        updatePlaylistThumbnail(playlistId)
 
         return true
+    }
+
+    // Helper to sync playlist thumbnail with the last added video
+    private suspend fun updatePlaylistThumbnail(playlistId: String) {
+        val relation = DatabaseHolder.Database.localPlaylistsDao().getAll()
+            .firstOrNull { it.playlist.id.toString() == playlistId } ?: return
+
+        // Get the video with the highest ID (latest added)
+        val lastVideo = relation.videos.maxByOrNull { it.id }
+        val newThumbnail = lastVideo?.thumbnailUrl ?: ""
+        
+        if (relation.playlist.thumbnailUrl != newThumbnail) {
+             relation.playlist.thumbnailUrl = newThumbnail
+             DatabaseHolder.Database.localPlaylistsDao().updatePlaylist(relation.playlist)
+        }
     }
 
     override suspend fun importPlaylists(playlists: List<PipedImportPlaylist>) {
