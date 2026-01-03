@@ -54,7 +54,7 @@ object DownloadHelper {
     fun getMaxConcurrentDownloads(): Int {
         return PreferenceHelper.getString(
             PreferenceKeys.MAX_CONCURRENT_DOWNLOADS,
-            "6"
+            "1"
         ).toFloat().toInt()
     }
 

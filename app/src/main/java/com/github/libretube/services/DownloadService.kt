@@ -151,6 +151,7 @@ class DownloadService : LifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
+        notifyForeground()
         val downloadId = intent?.getIntExtra("id", -1)
         when (intent?.action) {
             ACTION_DOWNLOAD_RESUME -> resume(downloadId!!)
@@ -228,6 +229,7 @@ class DownloadService : LifecycleService() {
      * and notification.
      */
     private suspend fun downloadFile(item: DownloadItem) {
+        var error = false
         downloadQueue[item.id] = true
         try {
             val notificationBuilder = getNotificationBuilder(item)
@@ -257,12 +259,11 @@ class DownloadService : LifecycleService() {
                         break
                     }
                     lastLoopTotalRead = totalRead
-                } catch (_: CancellationException) {
-                    break
                 } catch (e: Exception) {
                     toastFromMainThread("${getString(R.string.download)}: ${e.message}")
                     Log.e(this@DownloadService::class.java.name, e.stackTraceToString())
                     _downloadFlow.emit(item.id to DownloadStatus.Error(e.message.toString(), e))
+                    error = true
                     break
                 }
             }
@@ -272,14 +273,14 @@ class DownloadService : LifecycleService() {
             val completed = totalRead >= item.downloadSize
             if (completed) {
                 _downloadFlow.emit(item.id to DownloadStatus.Completed)
-            } else {
+            } else if (!error) {
                 _downloadFlow.emit(item.id to DownloadStatus.Paused)
             }
 
             setPauseNotification(notificationBuilder, item, completed)
         } finally {
             runCatching {
-                if (item.path.fileSize() == 0L) item.path.deleteIfExists()
+                if (item.path.fileSize() == 0L || error) item.path.deleteIfExists()
             }
             downloadQueue[item.id] = false
 
