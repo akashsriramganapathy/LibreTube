@@ -164,8 +164,6 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
         _binding = FragmentAudioPlayerBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.isFullscreen.value = true
-
         // manually apply additional padding for edge-to-edge compatibility
         // manually apply additional padding for edge-to-edge compatibility
         activity.getSystemInsets()?.let { systemBars ->
@@ -610,7 +608,6 @@ class AudioPlayerFragment : Fragment(R.layout.fragment_audio_player), AudioPlaye
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.isFullscreen.value = false
         _binding = null
     }
 

@@ -268,9 +268,6 @@ class DownloadsFragmentPage : DynamicLayoutManagerFragment(R.layout.fragment_dow
 
 
 
-        playerViewModel.isFullscreen.observe(viewLifecycleOwner) { isFullscreen ->
-            binding.root.isGone = isFullscreen == true
-        }
     }
 
     private fun submitDownloadList(items: List<DownloadWithItems>) {
