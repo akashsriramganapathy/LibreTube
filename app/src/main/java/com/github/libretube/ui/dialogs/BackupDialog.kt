@@ -64,7 +64,7 @@ class BackupDialog : DialogFragment() {
                     value.equals("true", ignoreCase = true) || value.equals("false", ignoreCase = true) -> JsonPrimitive(value.toBoolean())
                     value.toIntOrNull() != null -> JsonPrimitive(value.toInt())
                     value.toLongOrNull() != null -> JsonPrimitive(value.toLong())
-                    value.toFloatOrNull() != null -> JsonPrimitive(value.toFloat())
+                    value.toFloatOrNull()?.run { if (!isInfinite() && !isNaN()) JsonPrimitive(this) else null } != null -> JsonPrimitive(value.toFloat())
                     else -> JsonPrimitive(value)
                 }
                 PreferenceItem(key, jsonValue)
